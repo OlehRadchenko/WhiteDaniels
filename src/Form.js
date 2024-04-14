@@ -5,7 +5,7 @@ function LoginForm(props){
         <input type="text" name="username" placeholder="Username"/><br/>
         <input type="password" name="password" placeholder="Password"/><br/>
         <input type="button" value="Zaloguj się"></input><br/>
-        Nie posiadasz konta? To <a href="">załóż konto</a>
+        Nie posiadasz konta? To <a href="a.html">załóż konto</a>
       </div>
     );
   }else if(props.style === "register"){
@@ -24,7 +24,7 @@ function LoginForm(props){
         <input type="text" name="currency" placeholder="waluta"/><br/>
         <input type="text" name="phone_number" placeholder="nr telefonu"/><br/>
         <input type="button" value="Zarejestruj się"></input><br/>
-        Posiadasz już konto? To <a href="">zaloguj się</a>
+        Posiadasz już konto? To <a href="a.html">zaloguj się</a>
       </div>
     );
   }
