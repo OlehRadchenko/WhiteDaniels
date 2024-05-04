@@ -51,7 +51,8 @@ form {
     justify-content: center;
 }
 
-input {
+/*
+input{
     padding: 5px;
     margin-bottom: 4vh;
     border-radius: 10px;
@@ -62,17 +63,18 @@ input {
     text-decoration: none;
 }
 
-input[type="text"], input[type="password"] {
+input {
     width: 250px;
     font-size: 26px;
+    margin: 10px;
 }
 
-input[type="submit"] {
+input[type="button"] {
     cursor: pointer;
     width: 125px;
     font-size: 20px;
     border-radius: 20px;
-}
+}*/
 
 a {
     text-decoration: none;
