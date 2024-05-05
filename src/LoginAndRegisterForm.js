@@ -9,6 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import Switch from '@mui/material/Switch';
 
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
 const LoginAndRegisterForm = () =>{
     const [mode, setMode] = useState('Login');
@@ -36,6 +37,7 @@ const LoginAndRegisterForm = () =>{
     const [kod_pocztowy_error, setKodPocztowyError] = useState(false);
     const [waluta_error, setWalutaError] = useState(false);
     const [nr_tel_error, setNrTelError] = useState(false);
+    const [redirect, setRedirect] = useState(null);
     const waluty = ['PLN', 'EUR', 'USD', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF'];
     const kraje = [
         "Argentyna", "Australia", "Belgia", "Brazylia", "Brazylia", "Boliwia", "Kanada",
@@ -60,6 +62,11 @@ const LoginAndRegisterForm = () =>{
             console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
             setEmailLoginError(false);
             setPasswordError(false);
+            if(email_login === 'admin' && password === 'admin'){
+                console.log('redirect to /blackjack');
+                //Tu trzeba zrobić przejście do innego pliku
+                setRedirect(<Navigate to="/blackjack" />);
+            }
         }else if(email_login === '' && password === ''){
             setEmailLoginError(true);
             setPasswordError(true);
@@ -145,9 +152,9 @@ const LoginAndRegisterForm = () =>{
         }
     }
 
-
     return(
         <div id={mode === 'Login' ? 'Login' : 'Register'}>
+            {redirect}
             <div id="titleDiv">
                 <p id="title">WHITEDANIELS BLACKJACK</p>
             </div>
