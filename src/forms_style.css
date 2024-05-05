@@ -51,6 +51,11 @@ form {
     justify-content: center;
 }
 
+#mode_switch{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 /*
 input{
     padding: 5px;

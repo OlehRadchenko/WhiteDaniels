@@ -6,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import Switch from '@mui/material/Switch';
 
 import { useState } from 'react';
 
@@ -191,10 +192,10 @@ const LoginAndRegisterForm = () =>{
                 <Button variant="contained" color="success" endIcon={mode==='Login' ? <SendIcon /> : null} onClick={mode === 'Login' ? LoginButton : RegisterButton}>
                     {mode === 'Login' ? 'Zaloguj' : 'Zarejestruj się'}
                 </Button>
-                <Button variant="outlined" onClick={changeMode}>
-                    {mode === 'Login' ? 'Nie masz konta? Zarejestruj się poprzez naciśnięcie tego przycisku' : 'Masz już konto? Zaloguj się poprzez naciśnięcie tego przycisku'}
-                </Button>
             </form>
+            <div id="mode_switch">
+                Logowanie<Switch defaultChecked={mode === 'Login' ? false : true} onChange={changeMode} color="default" key={mode}/>Rejestracja
+            </div>
         </div>
     );
 }
