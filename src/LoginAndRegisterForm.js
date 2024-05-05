@@ -23,6 +23,18 @@ const LoginAndRegisterForm = () =>{
     const [kod_pocztowy, setKodPocztowy] = useState('');
     const [waluta, setWaluta] = useState('');
     const [nr_tel, setNrTel] = useState('');
+    const [email_login_error, setEmailLoginError] = useState(false);
+    const [password_error, setPasswordError] = useState(false);
+    const [imie_error, setImieError] = useState(false);
+    const [nazwisko_error, setNazwiskoError] = useState(false);
+    const [dataUro_error, setDataUroError] = useState(false);
+    const [email_error, setEmailError] = useState(false);
+    const [kraj_error, setKrajError] = useState(false);
+    const [miasto_error, setMiastoError] = useState(false);
+    const [adres_error, setAdresError] = useState(false);
+    const [kod_pocztowy_error, setKodPocztowyError] = useState(false);
+    const [waluta_error, setWalutaError] = useState(false);
+    const [nr_tel_error, setNrTelError] = useState(false);
     const waluty = ['PLN', 'EUR', 'USD', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF'];
     const kraje = [
         "Argentyna", "Australia", "Belgia", "Brazylia", "Brazylia", "Boliwia", "Kanada",
@@ -31,7 +43,7 @@ const LoginAndRegisterForm = () =>{
         "Korea", "Niemcy", "Peru", "Polska", "Portugalia", "Paragwaj", "Słowacja", "Słowenia",
         "Sudan", "Szwajcaria", "Szwecja", "Turcja", "Ukraina", "USA", "Wenezuela", "Walia",
         "Wielka Brytania", "Włochy"];
-    let email_login_error, password_error, imie_error, nazwisko_error, dataUro_error, email_error, miasto_error, adres_error, kod_pocztowy_error, nr_tel_error;
+    let isValid = true;
     const changeMode = () =>{
         setMode(mode === 'Login' ? 'Register' : 'Login');
     }
@@ -45,12 +57,17 @@ const LoginAndRegisterForm = () =>{
     const LoginButton = () =>{
         if(email_login !== '' && password !== ''){
             console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
+            setEmailLoginError(false);
+            setPasswordError(false);
         }else if(email_login === '' && password === ''){
-            console.log('Wszystkie dane wprowadzone są puste');
+            setEmailLoginError(true);
+            setPasswordError(true);
         }else if(email_login === ''){
-            console.log("Wpisany login jest pusty");
+            setEmailLoginError(true);
+            setPasswordError(false);
         }else{
-            console.log("Wpisane hasło jest puste");
+            setPasswordError(true);
+            setEmailLoginError(false);
         }
     }
 
@@ -84,10 +101,50 @@ const LoginAndRegisterForm = () =>{
     const NrTelInput = (event) =>{
         setNrTel(event.target.value);
     }
-    const RegisterButton = () =>{
-        //Walidacja danych oraz zapis do bazy danych
-        console.log(imie + '\n' + nazwisko + '\n' + dataUro + '\n' + email + '\n' + kraj + '\n' + miasto + '\n' + adres + '\n' + kod_pocztowy + '\n' + waluta + '\n' + nr_tel);
+    const validateEmail = (email) => {
+        return /\S+@\S+\.\S+/.test(email);
     }
+    const validatePostalCode = (postalCode) => {
+        return /^\d{2}-\d{3}$/.test(postalCode);
+    }
+    const otherValidate = (value, funct) => {
+        if (value === '') {
+            funct(true);
+            isValid = false;
+        } else {
+            funct(false);
+        }
+    }
+    const RegisterButton = () =>{
+        isValid = true;
+        otherValidate(imie, setImieError);
+        otherValidate(nazwisko, setNazwiskoError);
+        otherValidate(dataUro, setDataUroError);
+
+        if (email === '' || !validateEmail(email)) {
+            isValid = false;
+            setEmailError(true);
+        } else {
+            setEmailError(false);
+        }
+        otherValidate(kraj, setKrajError);
+        otherValidate(miasto, setMiastoError);
+        otherValidate(adres, setAdresError);
+        if (kod_pocztowy === '' || !validatePostalCode(kod_pocztowy)) {
+            isValid = false;
+            setKodPocztowyError(true);
+        } else {
+            setKodPocztowyError(false);
+        }
+        otherValidate(waluta, setWalutaError);
+        otherValidate(nr_tel, setNrTelError);
+
+        if(isValid){
+            console.log(imie + '\n' + nazwisko + '\n' + dataUro + '\n' + email + '\n' + kraj + '\n' + miasto + '\n' + adres + '\n' + kod_pocztowy + '\n' + waluta + '\n' + nr_tel);
+        }
+    }
+
+
     return(
         <div id={mode === 'Login' ? 'Login' : 'Register'}>
             <div id="titleDiv">
@@ -96,44 +153,43 @@ const LoginAndRegisterForm = () =>{
             <form>
                 {mode === 'Login' ? (
                     <>
-                        <Input placeholder="Email" onChange={EmailLoginInput} />
-                        <Input placeholder="Hasło" type="password" onChange={PasswordInput} />
+                        <Input placeholder="Email" onChange={EmailLoginInput} error={email_login_error}/>
+                        <Input placeholder="Hasło" type="password" onChange={PasswordInput} error={password_error}/>
                     </>
                 ) : (
                     <>
                         <div id="forms">
                             <div id="form1">
-                                <Input placeholder="Imie" onChange={ImieInput}/>
-                                <Input placeholder="Nazwisko" onChange={NazwiskoInput}/>
+                                <Input placeholder="Imie" onChange={ImieInput} error={imie_error}/>
+                                <Input placeholder="Nazwisko" onChange={NazwiskoInput} error={nazwisko_error}/>
                                 <FormControl fullWidth>
-                                    <Input type="date" placeholder="Data urodzenia" onChange={DataUroInput}/>
+                                    <Input type="date" placeholder="Data urodzenia" onChange={DataUroInput} error={dataUro_error}/>
                                 </FormControl>
-                                <Input placeholder="Email" onChange={EmailInput}/>
+                                <Input placeholder="Email" onChange={EmailInput} error={email_error}/>
                                 <FormControl fullWidth>
                                     <InputLabel id="demo-simple-select-label">Kraj</InputLabel>
-                                    <Select value={kraj} label="Kraj" labelId="demo-simple-select-label" id="demo-simple-select" onChange={KrajInput}>
+                                    <Select value={kraj} label="Kraj" labelId="demo-simple-select-label" id="demo-simple-select" onChange={KrajInput} error={kraj_error}>
                                         {kraje.map((kraj, index) => <MenuItem key={index} value={kraj}>{kraj}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </div>
                             <div id="form2">
-                                <Input placeholder="Miasto" onChange={MiastoInput}/>
-                                <Input placeholder="Adres" onChange={AdresInput}/>
-                                <Input placeholder="Kod pocztowy" onChange={KodPocztowyInput}/>
+                                <Input placeholder="Miasto" onChange={MiastoInput} error={miasto_error}/>
+                                <Input placeholder="Adres" onChange={AdresInput} error={adres_error}/>
+                                <Input placeholder="Kod pocztowy" onChange={KodPocztowyInput} error={kod_pocztowy_error}/>
                                 <FormControl fullWidth>
                                     <InputLabel id="demo-simple-select-label">Waluta</InputLabel>
-                                    <Select value={waluta} label="Waluta" labelId="demo-simple-select-label" id="demo-simple-select" onChange={WalutaInput}>
+                                    <Select value={waluta} label="Waluta" labelId="demo-simple-select-label" id="demo-simple-select" onChange={WalutaInput} error={waluta_error}>
                                         {waluty.map((waluta, index) => <MenuItem key={index} value={waluta}>{waluta}</MenuItem>)}
                                     </Select>
                                 </FormControl>
-                                <Input placeholder="Numer telefonu" onChange={NrTelInput}/>
+                                <Input placeholder="Numer telefonu" onChange={NrTelInput} error={nr_tel_error}/>
                             </div>
                         </div>
                     </>
                 )}
-                <Button variant="contained" color="success" onClick={mode === 'Login' ? RegisterButton : RegisterButton}>
+                <Button variant="contained" color="success" endIcon={mode==='Login' ? <SendIcon /> : null} onClick={mode === 'Login' ? LoginButton : RegisterButton}>
                     {mode === 'Login' ? 'Zaloguj' : 'Zarejestruj się'}
-                    {mode === 'Login' ? <SendIcon /> : null}
                 </Button>
                 <Button variant="outlined" onClick={changeMode}>
                     {mode === 'Login' ? 'Nie masz konta? Zarejestruj się poprzez naciśnięcie tego przycisku' : 'Masz już konto? Zaloguj się poprzez naciśnięcie tego przycisku'}
