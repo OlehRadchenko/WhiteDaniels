@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input } from "@mui/material";
 
 const Blackjack = () =>{
@@ -10,7 +10,28 @@ const Blackjack = () =>{
     const [startGame, setStartGame] = useState(false);
     const [dealerCards, setDealerCards] = useState([]);
     const [playerCards, setPlayerCards] = useState([]);
-    
+    useEffect(() => {
+        console.log("ZMIANA DILERA");
+        let sumaDealera = dealerCards.reduce((suma, karta) => suma + karta.wartosc, 0);
+        if(!startGame && sumaDealera < 17 && dealerCards.length > 1){
+            setDealerCards(dealerCards.concat(wylosujKarte(true)));
+        }else if(sumaDealera >= 17 && !startGame){
+            podlicz();
+        }
+    }, [dealerCards]);
+    useEffect(() => {
+        const pkt = playerCards.reduce((suma, karta) => suma + karta.wartosc, 0);
+        if(pkt > 21){
+            console.log('You lose');
+            setStartGame(false);
+            endGame();
+        }else if(pkt === 21){
+            console.log('BLACKJACK!');
+        }else{
+            console.log('KONTYNUUJ');
+        }
+    }, [playerCards]);
+
     const nominaly = [
         { wartosc: 5000, ilosc: 0, color: 'Brązowy' },
         { wartosc: 2000, ilosc: 0, color: 'Jasno niebieski' },
@@ -117,41 +138,36 @@ const Blackjack = () =>{
         setStartGame(true);
     }
     const hit = () =>{
-        let nowa_karta = wylosujKarte(true);
-        setPlayerCards([...playerCards, nowa_karta]); //raz na jakiś czas, karta nie zostaje dodana dlatego pojawia się bug
-        if(playerCards.reduce((suma, karta) => suma + karta.wartosc, 0)+nowa_karta.wartosc>21){
-            endGame();
-        }
+        setPlayerCards(playerCards.concat(wylosujKarte(true)));
     }
     const stand = () =>{
-        setDealerCards([...dealerCards, wylosujKarte()]);
         endGame();
     }
     const double = () =>{
-        setPlayerCards([...playerCards, wylosujKarte()]);
+        setPlayerCards(playerCards.concat(wylosujKarte(true)));
         endGame();
+    }
+    const podlicz = () =>{
+        console.log("LICZENIE");
+        let playerSum = playerCards.reduce((suma, karta) => suma + karta.wartosc, 0);
+        let dealerSum = dealerCards.reduce((suma, karta) => suma + karta.wartosc, 0);
+        if((playerSum > dealerSum && playerSum <= 21) || (dealerSum > 21 && playerSum <= 21)){
+            console.log("WYGRAŁEŚ BOTA, DOSTAJESZ X2 $      DEALER: "+dealerSum+"   PLAYER: "+playerSum);
+            console.log(dealerCards);
+            console.log(playerCards);
+        }else if((playerSum > 21 && dealerSum > 21) || (playerSum === dealerSum)){
+            console.log("REMIS!! NIC NIE ZARABIASZ      DEALER: "+dealerSum+"   PLAYER: "+playerSum);
+            console.log(dealerCards);
+            console.log(playerCards);
+        }else{
+            console.log("PRZEGRAŁEŚ!! STRACIŁEŚ CAŁOŚĆ      DEALER: "+dealerSum+"   PLAYER: "+playerSum);
+            console.log(dealerCards);
+            console.log(playerCards);
+        }
     }
     const endGame = () =>{
         setStartGame(false);
         showDealerCards();
-        let dealerSum = dealerCards.reduce((suma, karta) => suma + karta.wartosc, 0);
-        if (dealerSum < 17) {
-            const newDealerCards = [...dealerCards];
-            while (dealerSum < 17) {
-                const newCard = wylosujKarte(true);
-                newDealerCards.push(newCard);
-                dealerSum += newCard.wartosc;
-            }
-            setDealerCards(newDealerCards);
-        }
-        let playerSum = playerCards.reduce((suma, karta) => suma + karta.wartosc, 0);
-        if((playerSum > dealerSum && playerSum <= 21) || (dealerSum > 21 && playerSum <= 21)){
-            console.log("WYGRAŁEŚ BOTA, DOSTAJESZ X2 $      DEALER: "+dealerSum+"   PLAYER: "+playerSum);
-        }else if((playerSum > 21 && dealerSum > 21) || (playerSum === dealerSum)){
-            console.log("REMIS!! NIC NIE ZARABIASZ      DEALER: "+dealerSum+"   PLAYER: "+playerSum);
-        }else{
-            console.log("PRZEGRAŁEŚ!! STRACIŁEŚ CAŁOŚĆ      DEALER: "+dealerSum+"   PLAYER: "+playerSum);
-        }
     }
     const showDealerCards = () =>{
         let karty = [...dealerCards];
