@@ -15,7 +15,7 @@ const Blackjack = () =>{
         hitStand: 'Hit or Stand?',
         win: 'YOU WIN!',
         lose: 'YOU LOSE!',
-        tie: 'TIE GAME!',
+        tie: 'PUSH!',
         blackjack: 'BLACKJACK!',
         bust: 'BUST!',
         surrender: 'SURRENDER!',
@@ -52,6 +52,10 @@ const Blackjack = () =>{
 
     const [deck, setDeck] = useState([]);
 
+    const [doubled, setDoubled] = useState(false);
+    const [blackjackBoolean, setBlackjackBoolean] = useState(true);
+    const [definitiveBlacjack, setDefinitiveBlackjack] = useState(false);
+
     useEffect(() => {
         if (gameState === 'start') {
             generateCard(Deal.user);
@@ -78,12 +82,21 @@ const Blackjack = () =>{
 
     useEffect(() => {
         if(gameState === GameState.userTurn){
-            if(playerScore === 21){
+            if(playerScore === 21 && blackjackBoolean){
+                setDefinitiveBlackjack(true);
                 buttonsState.doubleDisabled = true;
                 buttonsState.surrenderDisabled = true;
                 buttonsState.hitDisabled = true;
                 setButtonsState({...buttonsState});
-            }else if(playerScore > 21){
+            }
+            else if(playerScore === 21){
+                setBlackjackBoolean(false);
+                buttonsState.doubleDisabled = true;
+                buttonsState.surrenderDisabled = true;
+                buttonsState.hitDisabled = true;
+                setButtonsState({...buttonsState});
+            }
+            else if(playerScore > 21){
                 bust();
             }
         }
@@ -106,6 +119,9 @@ const Blackjack = () =>{
         setDealerCards([]);
         setDealerScore(0);
         setDealerCount(0);
+
+        setBlackjackBoolean(true);
+        setDefinitiveBlackjack(false);
 
         setPlayerCards([]);
         setPlayerScore(0);
@@ -215,6 +231,9 @@ const Blackjack = () =>{
 
     const hit = () =>{
         generateCard(Deal.user);
+        setGameState(GameState.userTurn);
+        if (!definitiveBlacjack)
+            setBlackjackBoolean(false);
     }
     const stand = () =>{
         buttonsState.hitDisabled = true;
@@ -228,9 +247,10 @@ const Blackjack = () =>{
     }
     const double = () =>{
         hit();
-        /*TUTAJ DODAĆ 2X BET ORAZ SPRAWDZIĆ CZY WGL SIĘ DA OBSTAWIĆ 2X*/
+        setDoubled(true);
         stand();
     }
+
     const bust = () =>{
         buttonsState.hitDisabled = true;
         buttonsState.standDisabled = true;
@@ -252,17 +272,45 @@ const Blackjack = () =>{
 
     const checkWin = () =>{
         if(message !== Message.surrender){
-            if((playerScore > dealerScore && playerScore < 21) || dealerScore > 21){
-                setMessage(Message.win + ' Wygrywasz: ' + bet);
-                setBalance(balance + (bet*2));
+            if((playerScore > dealerScore && playerScore < 21) || (dealerScore > 21 && playerScore < 21)){
+                if (doubled) {
+                    setDoubled(false);
+                    setBet(bet * 2);
+                    setMessage(Message.win + ' Wygrywasz: ' + (bet * 2));
+                    setBalance(balance + (bet*2));
+                }
+                else {
+                    setMessage(Message.win + ' Wygrywasz: ' + (bet * 2));
+                    setBalance(balance + (bet*2));
+                }
             }else if(playerScore === dealerScore){
                 setMessage(Message.tie + ' Więc nic nie tracisz');
                 setBalance(balance + bet);
-            }else if(dealerScore > playerScore && dealerScore < 21){
-                setMessage(Message.lose + ' Straciłeś: ' + bet);
-            }else if(playerScore === 21){
-                setMessage(Message.blackjack + ' Wygrywasz: ' + bet*1.5);
+            }else if((dealerScore > playerScore && dealerScore <= 21) || playerScore > 21){
+                if (doubled) {
+                    setDoubled(false);
+                    setBet(bet * 2);
+                    setMessage(Message.lose + ' Straciłeś: ' + bet * 2);
+                    setBalance(balance - bet);
+                }
+                else {
+                    setMessage(Message.lose + ' Straciłeś: ' + bet);}
+            }else if(playerScore === 21 && blackjackBoolean){
+                if (doubled) {
+                    setDoubled(false);
+                    setBet(bet * 2);
+                    setMessage(Message.blackjack + ' Wygrywasz: ' + (bet*2.5));
+                    setBalance(balance + (bet*2.5));
+                }
+                setMessage(Message.blackjack + ' Wygrywasz: ' + bet*2.5);
                 setBalance(balance + (bet*2.5));
+            }
+            else if(playerScore === 21 && !blackjackBoolean){
+                setMessage(Message.win + ' Wygrywasz: ' + bet*2);
+                setBalance(balance + (bet*2));
+            }
+            else{
+                alert('Cos poszło nie tak');
             }
         }else{
             setMessage(Message.surrender + ' Straciłeś: ' + bet/2);
@@ -273,6 +321,7 @@ const Blackjack = () =>{
         if(bet <= balance && bet !== 0){
             setBet(bet);
             setBalance(balance - bet);
+            newGame();
             setGameState(GameState.start);
         }
     }
