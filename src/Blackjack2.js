@@ -39,7 +39,7 @@ const Blackjack = () =>{
     const [playerCount, setPlayerCount] = useState(0);
 
     const [bet, setBet] = useState(0);
-    const [balance, setBalance] = useState(1000);
+    const [balance, setBalance] = useState(10000);
 
     const [message, setMessage] = useState(Message.bet);
     const [buttonsState, setButtonsState] = useState({
@@ -122,7 +122,7 @@ const Blackjack = () =>{
 
         setDeck([]);
         generateDeck();
-        setBalance(1000);
+        //setBalance(1000);
     }
 
     const schuffleDeck = (deck) =>{
@@ -246,6 +246,7 @@ const Blackjack = () =>{
     }
     const double = () =>{
         hit();
+        /*TUTAJ DODAĆ 2X BET ORAZ SPRAWDZIĆ CZY WGL SIĘ DA OBSTAWIĆ 2X*/
         stand();
     }
     const bust = () =>{

@@ -148,6 +148,7 @@ const LoginAndRegisterForm = () =>{
         otherValidate(nr_tel, setNrTelError);
 
         if(isValid){
+            /*DO WALIDACJI DODAĆ SPRAWDZENIE WIEKU*/
             console.log(imie + '\n' + nazwisko + '\n' + dataUro + '\n' + email + '\n' + kraj + '\n' + miasto + '\n' + adres + '\n' + kod_pocztowy + '\n' + waluta + '\n' + nr_tel);
         }
     }

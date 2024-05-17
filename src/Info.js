@@ -1,7 +1,7 @@
 const Info = ({message, balance}) => {
     return (
         <div>
-            <div>{balance}</div>
+            <div>Your balance: {balance}$</div>
             <div>{message}</div>
         </div>
     );
