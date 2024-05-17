@@ -33,7 +33,7 @@ const Buttons = ({balance, gameState, betEvent, hitEvent, hitState, standEvent, 
                 //TUTAJ SYSTEM OBSTAWIANIA
                 <div>
                     <p>
-                        {nominaly.map((nominal, index) => <Button key={index} color="error" disabled={balanceValue < nominal.wartosc} onClick={() => AddBet(nominal.wartosc)}>{nominal.wartosc}$</Button>)}
+                        {nominaly.map((nominal, index) => <Button key={index} id={nominal.color} disabled={balanceValue < nominal.wartosc} onClick={() => AddBet(nominal.wartosc)}>{nominal.wartosc}$</Button>)}
                         <Button color="success" onClick={Reset}>Reset Bet</Button>
                     </p>
                     Czyli obstawiłeś: {betValue}
