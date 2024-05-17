@@ -203,25 +203,7 @@ const Blackjack = () =>{
                 }
             }
         });
-        /* WERSJA 1
-        const aces = cards.filter(card => card.value === 'A');
-        aces.forEach(card => {
-            if(card.hidden === false){
-                if(score + 11 <= 21){
-                    score += 11;
-                }else if(score + 11 === 21){
-                    if(aces.length > 1){
-                        score += 1;
-                    }else{
-                        score += 11;
-                    }
-                }else{
-                    score += 1;
-                }
-            }
-        })*/
 
-        // WERSJA 2
         const aces = cards.filter(card => card.value === 'A' && card.hidden === false);
         score += aces.length*11;
         while(score > 21 && aces.length > 0){
@@ -288,7 +270,7 @@ const Blackjack = () =>{
         }
     }
     const placeBet = (bet) =>{
-        if(bet < balance){
+        if(bet <= balance && bet !== 0){
             setBet(bet);
             setBalance(balance - bet);
             setGameState(GameState.start);
