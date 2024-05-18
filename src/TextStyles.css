@@ -1,0 +1,19 @@
+.bet-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.bet-label {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 90px;
+    border: 2px solid grey;
+    width: 250px;
+    height: 74px;
+    text-align: center; 
+    color: white;
+    font-size: 24px;
+    font-family: "Arial";
+    padding-top: 0px;
+}

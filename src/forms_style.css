@@ -6,7 +6,12 @@ html, body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     overflow: hidden;
+    height: 100%;
 }
+#MainMainDiv {
+    height: 100%;
+}
+
 #titleDiv {
     width: 10vw;
     display: flex;
@@ -19,6 +24,14 @@ html, body {
     color: white;
     text-align: center;
     font-size: 76px;
+    margin-top: 0;
+}
+
+#titleBlackJack {
+    font-family: "Arial";
+    color: white;
+    text-align: center;
+    font-size: 26px;
     margin-top: 0;
 }
 
@@ -64,6 +77,14 @@ form {
     justify-content: center;
     backdrop-filter: blur(5px);
     color: #fff;
+    height: 100%;
+}
+
+#menu {
+    padding: 25px 25px 25px 25px;
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 15px;
 }
 
 #drugi_tryb {

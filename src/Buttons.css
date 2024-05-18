@@ -1,0 +1,47 @@
+.icon-button {
+    border-radius: 50%; 
+    border: 2px solid white;
+    overflow: hidden;
+    width: 72px;
+    height: 72px;
+}
+
+#return-button {
+    margin-right: 25px;
+}
+
+#reset-button {
+    margin-left: 25px;
+}
+
+.icon-image {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    filter: invert(100%);
+}
+
+.chip-button:hover {
+    transform: rotate(15deg) translateY(-10px);
+}
+
+.chip-button:disabled {
+    filter: grayscale(100%) brightness(0.5);
+    cursor: not-allowed;
+}
+
+.chip-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.chip-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
