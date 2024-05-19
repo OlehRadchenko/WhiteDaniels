@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import Info from './Info';
+import BalanceInfo from './balanceInfo';
+import MessageInfo from './messageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
 
@@ -40,7 +41,7 @@ const Blackjack = () =>{
     const [bet, setBet] = useState(0);
     const [balance, setBalance] = useState(10000);
 
-    const [message, setMessage] = useState(Message.bet);
+    const [message, setMessage] = useState('');
     const [buttonsState, setButtonsState] = useState({
         hitDisabled: false,
         standDisabled: false,
@@ -149,7 +150,7 @@ const Blackjack = () =>{
         setPlayerScore(0);
         setPlayerCount(0);
 
-        setMessage(Message.bet);
+        setMessage('');
 
         setDeck([]);
         generateDeck();
@@ -340,16 +341,26 @@ const Blackjack = () =>{
             setGameState(GameState.start);
         }
     }
+
+    const startChipsRestore = () =>{
+        setBet(0);
+        setBalance(10000);
+    }
+
+    const getBalance = () =>{
+        return balance;
+    }
     
     return(
         <div id="Blackjack">
+            <BalanceInfo balance={balance} />
             <div id="menu">
                 <h1 id="titleBlackJack">Postaw Swój Zakład</h1>
                 <div id = "losowania">
-                    <Buttons balance={balance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled}/>
+                    <Buttons balance={balance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
                     <Hand title="Player's Hand" cards={playerCards} actualScore={playerScore}/>
-                    <Info message={message} balance={balance}/>
+                    <MessageInfo message={message} />
                 </div>
             </div>
         </div>

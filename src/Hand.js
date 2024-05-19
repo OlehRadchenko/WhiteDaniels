@@ -1,4 +1,5 @@
 import Card from './Card';
+import './TextStyles.css';
 
 const Hand = ({title, cards, actualScore}) => {
     const getTitle = () => {
@@ -13,7 +14,7 @@ const Hand = ({title, cards, actualScore}) => {
     }
     
     return (
-        <div>
+        <div className='hands'>
             {getTitle()}
             <div className='cards'>
                 {cards.map((card, index) => {

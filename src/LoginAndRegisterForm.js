@@ -11,6 +11,9 @@ import Switch from '@mui/material/Switch';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
+import { addUser, findUserByEmail } from './userUtils'; 
+
+
 const LoginAndRegisterForm = () =>{
     const [mode, setMode] = useState('Login');
     const [email_login, setLogin] = useState('');
@@ -57,27 +60,35 @@ const LoginAndRegisterForm = () =>{
     const PasswordInput = (event) =>{
         setPassword(event.target.value);
     }
-    const LoginButton = () =>{
-        if(email_login !== '' && password !== ''){
-            console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
-            setEmailLoginError(false);
-            setPasswordError(false);
-            if(email_login === 'admin' && password === 'admin'){
+    const LoginButton = async () => {
+        try {
+            if(email_login !== '' && password !== ''){
+            const user = await findUserByEmail(email_login);
+            if (user && user.password === password) {
+                console.log('Login: ' + email_login + ' \nPassword: ' + password);
+                setEmailLoginError(false);
+                setPasswordError(false);
+                console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
                 console.log('redirect to /blackjack');
-                //Tu trzeba zrobić przejście do innego pliku
                 setRedirect(<Navigate to="/blackjack" />);
+            } else if (user && user.password !== password) {
+                setPasswordError(true);
+                setEmailLoginError(false);
+            }} else if (email_login === '' && password === ''){
+                setEmailLoginError(true);
+                setPasswordError(true);
+            } else if (email_login === ''){
+                setEmailLoginError(true);
+                setPasswordError(false);
+            } else {
+                setPasswordError(true);
+                setEmailLoginError(false);
             }
-        }else if(email_login === '' && password === ''){
-            setEmailLoginError(true);
-            setPasswordError(true);
-        }else if(email_login === ''){
-            setEmailLoginError(true);
-            setPasswordError(false);
-        }else{
-            setPasswordError(true);
-            setEmailLoginError(false);
         }
-    }
+        catch (error) {
+            console.error('Error logging in:', error);
+        }
+    };
 
     const ImieInput = (event) =>{
         setImie(event.target.value);
@@ -115,6 +126,17 @@ const LoginAndRegisterForm = () =>{
     const validatePostalCode = (postalCode) => {
         return /^\d{2}-\d{3}$/.test(postalCode);
     }
+    const validateAge = (myBirthDate) => {
+        const today = new Date();
+        const birthDate = new Date(myBirthDate);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
+            age--;
+        if (age < 18) 
+            otherValidate(dataUro, setDataUroError);
+        
+    }
     const otherValidate = (value, funct) => {
         if (value === '') {
             funct(true);
@@ -123,7 +145,7 @@ const LoginAndRegisterForm = () =>{
             funct(false);
         }
     }
-    const RegisterButton = () =>{
+    const RegisterButton = async () =>{
         isValid = true;
         otherValidate(imie, setImieError);
         otherValidate(nazwisko, setNazwiskoError);
@@ -147,9 +169,35 @@ const LoginAndRegisterForm = () =>{
         otherValidate(waluta, setWalutaError);
         otherValidate(nr_tel, setNrTelError);
 
+        validateAge(dataUro);
+
         if(isValid){
-            /*DO WALIDACJI DODAĆ SPRAWDZENIE WIEKU*/
-            console.log(imie + '\n' + nazwisko + '\n' + dataUro + '\n' + email + '\n' + kraj + '\n' + miasto + '\n' + adres + '\n' + kod_pocztowy + '\n' + waluta + '\n' + nr_tel);
+            console.log(imie + '\n' + password + '\n' + nazwisko + '\n' + dataUro + '\n' + email + '\n' + kraj + '\n' + miasto + '\n' + adres + '\n' + kod_pocztowy + '\n' + waluta + '\n' + nr_tel);
+            const newUser = {
+                email,
+                password,  
+                imie,
+                nazwisko,
+                dataUro,
+                kraj,
+                miasto,
+                adres,
+                kod_pocztowy,
+                waluta,
+                nr_tel
+            };
+            try {
+                const possibleUser = await findUserByEmail(email_login);
+                if (possibleUser) {
+                    setEmailLoginError(true);
+                    return;
+                }
+                await addUser(newUser);
+                console.log('User registered successfully:', newUser);
+            } catch (error) {
+                console.error('Error registering user:', error);
+            }
+            setRedirect(<Navigate to="/blackjack" />);
         }
     }
 
@@ -159,6 +207,8 @@ const LoginAndRegisterForm = () =>{
             <div id="titleDiv">
                 <p id="title">WHITEDANIELS BLACKJACK</p>
             </div>
+            <div id="Blackjack">
+            <div id="menu">
             <form>
                 {mode === 'Login' ? (
                     <>
@@ -203,6 +253,8 @@ const LoginAndRegisterForm = () =>{
             </form>
             <div id="mode_switch">
                 Logowanie<Switch defaultChecked={mode === 'Login' ? false : true} onChange={changeMode} color="default" key={mode}/>Rejestracja
+            </div>
+            </div>
             </div>
         </div>
     );

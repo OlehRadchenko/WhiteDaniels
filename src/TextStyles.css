@@ -3,6 +3,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 25px;
 }
 
 .bet-label {
@@ -15,5 +16,53 @@
     color: white;
     font-size: 24px;
     font-family: "Arial";
+    padding-top: 0px;
+}
+
+.balance-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 50px; 
+}
+
+.balance-label {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 90px;
+    border: 2px solid grey;
+    width: 300px;
+    height: 50px;
+    text-align: center; 
+    color: white;
+    font-size: 16px;
+    font-family: "Arial";
+    padding-top: 0px;
+}
+
+.messageInfo {
+    text-align: center; 
+    color: white;
+    font-size: 16px;
+    font-family: "Arial";
+    padding-top: 0px;
+}
+
+.hands > h2 { 
+    color: white;
+    font-size: 24px;
+    font-family: "Arial";
+    text-align: center;
+    padding-top: 0px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 45px;
+    border: 2px dashed green;
+}
+
+.hands > h1 {
+    color: white;
+    font-size: 24px;
+    font-family: "Arial";
+    text-align: left;
     padding-top: 0px;
 }
