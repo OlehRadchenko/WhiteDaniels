@@ -13,8 +13,8 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Form/>} />
-      <Route path="/blackjack" element={<Blackjack/>} />
-      <Route path="/blackjack_gra" element={<Blackjack2/>} />
+      <Route path="/betowanie_wersja_robocza" element={<Blackjack/>} />
+      <Route path="/blackjack" element={<Blackjack2/>} />
     </Routes>
   </BrowserRouter>
 );

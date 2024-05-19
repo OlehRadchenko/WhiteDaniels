@@ -60,7 +60,7 @@ const Blackjack = () =>{
                 </p>
                 Czyli obstawiłeś: {obstawione2}
             </div>
-            <Link to="/blackjack_gra">ZAGRAJ</Link>
+            <Link to="/blackjack">ZAGRAJ</Link>
         </div>
     )
 }

@@ -113,6 +113,29 @@ const Blackjack = () =>{
         // eslint-disable-next-line
     }, [dealerCount]);
 
+    useEffect(() => {
+        if(gameState === GameState.start){
+            if(bet > balance){
+                setButtonsState({
+                    hitDisabled: false,
+                    standDisabled: false,
+                    doubleDisabled: true,
+                    surrenderDisabled: false,
+                    newGameDisabled: true
+                });
+            }else{
+                setButtonsState({
+                    hitDisabled: false,
+                    standDisabled: false,
+                    doubleDisabled: false,
+                    surrenderDisabled: false,
+                    newGameDisabled: true
+                });
+            }
+        }
+        // eslint-disable-next-line
+    }, [gameState]);
+
     const newGame = () =>{
         setGameState(GameState.betTime);
         setDealerCards([]);
@@ -127,13 +150,6 @@ const Blackjack = () =>{
         setPlayerCount(0);
 
         setMessage(Message.bet);
-        setButtonsState({
-            hitDisabled: false,
-            standDisabled: false,
-            doubleDisabled: false,
-            surrenderDisabled: false,
-            newGameDisabled: true
-        });
 
         setDeck([]);
         generateDeck();

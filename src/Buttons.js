@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import './Buttons.css'; 
 import './TextStyles.css';
@@ -50,13 +50,20 @@ const Buttons = ({balance, gameState, betEvent, hitEvent, hitState, standEvent, 
         { wartosc: 1, ilosc: 0, color: 'white', image: require('./Chips/white.png') }
     ];
 
+    useEffect(() => {
+        if (gameState === 'betTime') {
+            setBetValue(0);
+            setBalanceValue(balance);
+        }
+    }, [gameState, balance]);
+
     const Reset = () => {
         setBalanceValue(balanceValue + betValue);
         setBetValue(0);
     }
 
     const Return = () => {
-        window.location.href = '/blackjack';
+        window.location.href = '/';
     }    
 
     const AddBet = (value) =>{
