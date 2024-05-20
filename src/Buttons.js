@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import { useReducer, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import './Buttons.css'; 
 import './TextStyles.css';
@@ -31,41 +31,10 @@ const UtilityButtons = styled(Button)(({ theme }) => ({
     minWidth: '0px',
 }));
 
-const initialState = {
-    betValue: 0,
-    balanceValue: 0,
-};
-
-const reducer = (state, action) => {
-    switch (action.type) {
-        case 'SET_BALANCE':
-            return { ...state, balanceValue: action.balance - state.betValue };
-        case 'ADD_BET':
-            return {
-                ...state,
-                betValue: state.betValue + action.value,
-                balanceValue: state.balanceValue - action.value,
-            };
-        case 'REMOVE_BET':
-            return {
-                ...state,
-                betValue: state.betValue - action.value,
-                balanceValue: state.balanceValue + action.value,
-            };
-        case 'RESET':
-            return { ...state, betValue: 0, balanceValue: action.balance };
-        default:
-            throw new Error();
-    }
-}
-
-const Buttons = ({ balance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, startChipsRestoreEvent, getBalance }) => {
-    const [state, dispatch] = useReducer(reducer, { ...initialState, balanceValue: balance });
-
-    useEffect(() => {
-        dispatch({ type: 'SET_BALANCE', balance });
-    }, [balance]);
-
+const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState}) => {
+    const [betValue, setBetValue] = useState(0);
+    const [balanceValue, setBalanceValue] = useState(balance);
+    
     const nominaly = [
         { wartosc: 5000, ilosc: 0, color: 'brown', image: require('./Chips/brown.png') },
         { wartosc: 2000, ilosc: 0, color: 'lightblue', image: require('./Chips/lightblue.png') },
@@ -81,31 +50,34 @@ const Buttons = ({ balance, gameState, betEvent, hitEvent, hitState, standEvent,
         { wartosc: 1, ilosc: 0, color: 'white', image: require('./Chips/white.png') }
     ];
 
+    useEffect(() => {
+        if (gameState === 'betTime') {
+            setBetValue(0);
+            setBalanceValue(balance);
+        }
+    }, [gameState, balance]);
+
     const Reset = () => {
-        dispatch({ type: 'RESET', balance: getBalance() });
-    };
+        setBalanceValue(balanceValue + betValue);
+        setBetValue(0);
+    }
 
     const Return = () => {
-        window.location.href = '/blackjack';
-    };
+        window.location.href = '/';
+    }    
 
-    const RestoreBalance = () => {
-        if (state.balanceValue <= 0) {
-            startChipsRestoreEvent();
-            Reset();
-        }
-        else 
-            dispatch({type: 'REMOVE_BET', value: state.betValue});
-    };
+    const Loan = (value) => {
+        let newBalance = balanceValue + value;
+        setBalanceValue(newBalance);
+        setBalance(newBalance);
+    }
 
-    // BUG: Jak ma sie wymaxowany bet i hajs ( zalozmy ze bet to 20k i balance to 20k ), logika wykrywa, ze niby nie masz pieniedzy, i przydziela ci 10k jako default
-
-    const AddBet = (value) => {
-        dispatch({ type: 'ADD_BET', value });
-    };
-
+    const AddBet = (value) =>{
+        setBetValue(betValue + value);
+        setBalanceValue(balanceValue - value);
+    }
     const getButtons = () => {
-        if (gameState === 'betTime') {
+        if(gameState === 'betTime'){
             return (
                 //TUTAJ SYSTEM OBSTAWIANIA
                 <div>
@@ -118,28 +90,24 @@ const Buttons = ({ balance, gameState, betEvent, hitEvent, hitState, standEvent,
                                 key={index}
                                 className="chip-button"
                                 id={nominal.color}
-                                disabled={state.balanceValue < nominal.wartosc}
+                                disabled={balanceValue < nominal.wartosc}
                                 onClick={() => AddBet(nominal.wartosc)}
                             >
                                 <img src={nominal.image} alt={nominal.color} className="chip-image"/>
                                 <span className="chip-value">{nominal.wartosc}$</span>
                             </Chips>
                         ))}
-                        <UtilityButtons
-                            color="success"
-                            onClick={state.balanceValue <= 0 ? RestoreBalance : RestoreBalance}
-                            className={`icon-button ${state.balanceValue <= 0 ? 'red-icon' : ''}`}
-                            id="reset-button"
-                        >
+                        <UtilityButtons color="success" onClick={Reset} className="icon-button" id="reset-button">
                             <img src={require('./icons/restart.png')} alt="Restart" className="icon-image" />
                         </UtilityButtons>
                     </p>
                     <div className="bet-container">
-                        <div className="bet-label">
-                            <p>{state.betValue} USD</p>
-                        </div>
-                        <Button variant="contained" onClick={() => betEvent(state.betValue)} color="success">Bet</Button>
+                            <div className="bet-label">
+                                <p>{betValue} USD</p>
+                            </div>
+                            <Button variant="contained" onClick={() => betEvent(betValue)} color="success">Bet</Button>
                     </div>
+                    <Button variant="contained" onClick={() => Loan(1000)} color="warning">Loan</Button>
                 </div>
             );
         } else {
@@ -157,13 +125,13 @@ const Buttons = ({ balance, gameState, betEvent, hitEvent, hitState, standEvent,
                 </div>
             );
         }
-    };
+    }
 
     return (
         <>
             {getButtons()}
         </>
     );
-};
+}
 
 export default Buttons;
