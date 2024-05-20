@@ -134,6 +134,7 @@ const LoginAndRegisterForm = () =>{
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
             age--;
         if (age < 18) 
+            isValid = false;
             otherValidate(dataUro, setDataUroError);
         
     }
@@ -170,6 +171,8 @@ const LoginAndRegisterForm = () =>{
         otherValidate(nr_tel, setNrTelError);
 
         validateAge(dataUro);
+
+        console.log(isValid)
 
         if(isValid){
             console.log(imie + '\n' + password + '\n' + nazwisko + '\n' + dataUro + '\n' + email + '\n' + kraj + '\n' + miasto + '\n' + adres + '\n' + kod_pocztowy + '\n' + waluta + '\n' + nr_tel);
