@@ -1,5 +1,6 @@
 import Card from './Card';
 import './TextStyles.css';
+import './CardStyles.css';
 
 const Hand = ({title, cards, actualScore}) => {
     const getTitle = () => {

@@ -79,7 +79,6 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     const getButtons = () => {
         if(gameState === 'betTime'){
             return (
-                //TUTAJ SYSTEM OBSTAWIANIA
                 <div>
                     <p>
                         <UtilityButtons color="success" onClick={Return} className="icon-button" id="return-button">

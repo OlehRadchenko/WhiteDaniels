@@ -11,7 +11,7 @@ import Switch from '@mui/material/Switch';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { addUser, findUserByEmail } from './userUtils'; 
+import { addUser, findUserByEmail } from './UserUtils.js'; 
 
 
 const LoginAndRegisterForm = () =>{

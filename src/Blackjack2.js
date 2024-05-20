@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import BalanceInfo from './balanceInfo';
-import MessageInfo from './messageInfo';
+import BalanceInfo from './BalanceInfo';
+import MessageInfo from './MessageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
 
@@ -247,6 +247,15 @@ const Blackjack = () =>{
 
     const hit = () =>{
         generateCard(Deal.user);
+        if(playerCount <= 3){
+            setButtonsState({
+                hitDisabled: false,
+                standDisabled: false,
+                doubleDisabled: true,
+                surrenderDisabled: false,
+                newGameDisabled: true
+            });
+        }
         setGameState(GameState.userTurn);
         if (!definitiveBlacjack)
             setBlackjackBoolean(false);

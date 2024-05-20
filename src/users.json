@@ -24,5 +24,18 @@
     "kod_pocztowy": "09-909",
     "waluta": "USD",
     "nr_tel": "555555555"
+  },
+  {
+    "email": "a@gmail.com",
+    "password": "xd",
+    "imie": "Olaf",
+    "nazwisko": "Falo",
+    "dataUro": "2006-10-10",
+    "kraj": "Finlandia",
+    "miasto": "asd",
+    "adres": "asd",
+    "kod_pocztowy": "83-000",
+    "waluta": "USD",
+    "nr_tel": "123456789"
   }
 ]
