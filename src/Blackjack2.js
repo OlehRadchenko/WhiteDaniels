@@ -1,10 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from 'react-router-dom';
 import BalanceInfo from './BalanceInfo';
 import MessageInfo from './MessageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
 
 const Blackjack = () =>{
+    const location = useLocation();
+    const { imie } = location.state;
+
     const Deal = {
         user: 'user',
         hidden: 'hidden',
@@ -368,7 +372,7 @@ const Blackjack = () =>{
                 <div id = "losowania">
                     <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
-                    <Hand title="Player's Hand" cards={playerCards} actualScore={playerScore}/>
+                    <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
                     <MessageInfo message={message} />
                 </div>
             </div>

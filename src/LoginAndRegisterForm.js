@@ -11,7 +11,7 @@ import Switch from '@mui/material/Switch';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { addUser, findUserByEmail } from './UserUtils.js'; 
+import { addUser, findUserByEmail } from './userUtils.js'; 
 
 
 const LoginAndRegisterForm = () =>{
@@ -70,7 +70,7 @@ const LoginAndRegisterForm = () =>{
                 setPasswordError(false);
                 console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
                 console.log('redirect to /blackjack');
-                setRedirect(<Navigate to="/blackjack" />);
+                setRedirect(<Navigate to="/blackjack" state={{ imie: user.imie }} />);
             } else if (user && user.password !== password) {
                 setPasswordError(true);
                 setEmailLoginError(false);
