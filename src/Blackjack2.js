@@ -21,7 +21,7 @@ const Blackjack = () =>{
         lose: 'YOU LOSE!',
         tie: 'PUSH!',
         blackjack: 'BLACKJACK!',
-        bust: 'BUST!',
+        bust: 'BUSTED!',
         surrender: 'SURRENDER!',
         error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry'
     };
@@ -88,17 +88,10 @@ const Blackjack = () =>{
         if(gameState === GameState.userTurn){
             if(playerScore === 21 && blackjackBoolean){
                 setDefinitiveBlackjack(true);
-                buttonsState.doubleDisabled = true;
-                buttonsState.surrenderDisabled = true;
-                buttonsState.hitDisabled = true;
-                setButtonsState({...buttonsState});
+                stand();
             }
             else if(playerScore === 21){
-                setBlackjackBoolean(false);
-                buttonsState.doubleDisabled = true;
-                buttonsState.surrenderDisabled = true;
-                buttonsState.hitDisabled = true;
-                setButtonsState({...buttonsState});
+                stand();
             }
             else if(playerScore > 21){
                 bust();
