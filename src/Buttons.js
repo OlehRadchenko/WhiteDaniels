@@ -80,10 +80,16 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
         if(gameState === 'betTime'){
             return (
                 <div>
-                    <p>
-                        <UtilityButtons color="success" onClick={Return} className="icon-button" id="return-button">
-                            <img src={require('./icons/arrow.png')} alt="Return" className="icon-image" />
-                        </UtilityButtons>
+                    <p style={{textAlign: 'center'}}>
+                        <p>
+                            <UtilityButtons color="success" onClick={Return} className="icon-button" id="return-button">
+                                <img src={require('./icons/arrow.png')} alt="Return" className="icon-image" />
+                            </UtilityButtons>
+                            <UtilityButtons color="success" onClick={Reset} className="icon-button" id="reset-button">
+                                <img src={require('./icons/restart.png')} alt="Restart" className="icon-image" />
+                            </UtilityButtons>
+                        </p>
+                        
                         {nominaly.map((nominal, index) => (
                             <Chips
                                 key={index}
@@ -96,9 +102,6 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
                                 <span className="chip-value">{nominal.wartosc}$</span>
                             </Chips>
                         ))}
-                        <UtilityButtons color="success" onClick={Reset} className="icon-button" id="reset-button">
-                            <img src={require('./icons/restart.png')} alt="Restart" className="icon-image" />
-                        </UtilityButtons>
                     </p>
                     <div className="bet-container">
                             <div className="bet-label">

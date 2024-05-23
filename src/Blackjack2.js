@@ -361,12 +361,27 @@ const Blackjack = () =>{
         <div id="Blackjack">
             <BalanceInfo balance={balance} />
             <div id="menu">
-                <h1 id="titleBlackJack">Postaw Swój Zakład</h1>
+                {/* <h1 id="titleBlackJack">Postaw Swój Zakład</h1> */}
                 <div id = "losowania">
-                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
+                    {/* <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/> */}
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
-                    <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
-                    <MessageInfo message={message} />
+                    <div style={{display : 'flex', flexDirection : 'row', alignContent: 'space-between', gap : '50px'}}>
+                        <div>
+                            <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
+                            <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
+                            <MessageInfo message={message} />
+                        </div>
+                        <div>
+                            <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
+                            <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
+                            <MessageInfo message={message} />
+                        </div>
+                        <div>
+                            <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
+                            <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
+                            <MessageInfo message={message} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
