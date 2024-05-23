@@ -5,7 +5,6 @@ const wss = new ws.Server({port: 5000}, () => {
 });
 //ŻEBY DZIAŁAŁO TRZEBA W FOLDERZE server zrobić: npm init -y, po czym zainstalować: npm i ws nodemon, i odpalić serwer za pomocą npm start
 wss.on('connection', function conection(ws) {
-    ws.id = Date.now();
     ws.on('message', function (message) {
         message = JSON.parse(message);
         switch (message.type) {
@@ -13,6 +12,12 @@ wss.on('connection', function conection(ws) {
                 broadcastMessage(message);
                 break;
             case "message":
+                broadcastMessage(message);
+                break;
+            case "closed":
+                broadcastMessage(message);
+                break;
+            case "betPlaced":
                 broadcastMessage(message);
                 break;
             default:
