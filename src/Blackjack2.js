@@ -1,14 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect } from "react";
 import BalanceInfo from './BalanceInfo';
 import MessageInfo from './MessageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
 
-const Blackjack = () =>{
-    const location = useLocation();
-    const { imie } = location.state;
-
+const Blackjack = ({imie, chatMessages, socket}) =>{
     const Deal = {
         user: 'user',
         hidden: 'hidden',
@@ -21,7 +17,7 @@ const Blackjack = () =>{
         lose: 'YOU LOSE!',
         tie: 'PUSH!',
         blackjack: 'BLACKJACK!',
-        bust: 'BUST!',
+        bust: 'BUSTED!',
         surrender: 'SURRENDER!',
         error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry'
     };
@@ -88,17 +84,10 @@ const Blackjack = () =>{
         if(gameState === GameState.userTurn){
             if(playerScore === 21 && blackjackBoolean){
                 setDefinitiveBlackjack(true);
-                buttonsState.doubleDisabled = true;
-                buttonsState.surrenderDisabled = true;
-                buttonsState.hitDisabled = true;
-                setButtonsState({...buttonsState});
+                stand();
             }
             else if(playerScore === 21){
-                setBlackjackBoolean(false);
-                buttonsState.doubleDisabled = true;
-                buttonsState.surrenderDisabled = true;
-                buttonsState.hitDisabled = true;
-                setButtonsState({...buttonsState});
+                stand();
             }
             else if(playerScore > 21){
                 bust();
@@ -373,7 +362,7 @@ const Blackjack = () =>{
                     <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
                     <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
-                    <MessageInfo message={message} />
+                    <MessageInfo message={message} messages={chatMessages} socket={socket} imie={imie}/>
                 </div>
             </div>
         </div>

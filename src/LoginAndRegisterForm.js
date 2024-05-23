@@ -70,7 +70,7 @@ const LoginAndRegisterForm = () =>{
                 setPasswordError(false);
                 console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
                 console.log('redirect to /blackjack');
-                setRedirect(<Navigate to="/blackjack" state={{ imie: user.imie }} />);
+                setRedirect(<Navigate to="/lobby" state={{ imie: user.imie }} />);
             } else if (user && user.password !== password) {
                 setPasswordError(true);
                 setEmailLoginError(false);

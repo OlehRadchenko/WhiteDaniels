@@ -37,5 +37,18 @@
     "kod_pocztowy": "83-000",
     "waluta": "USD",
     "nr_tel": "123456789"
+  },
+  {
+    "email": "a",
+    "password": "a",
+    "imie": "Olafidas",
+    "nazwisko": "Falo",
+    "dataUro": "2005-10-10",
+    "kraj": "Finlandia",
+    "miasto": "asd",
+    "adres": "asd",
+    "kod_pocztowy": "83-000",
+    "waluta": "USD",
+    "nr_tel": "123456789"
   }
 ]

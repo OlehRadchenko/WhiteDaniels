@@ -67,7 +67,7 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     }    
 
     const Loan = (value) => {
-        let newBalance = balanceValue + value;
+        let newBalance = balanceValue + betValue + value;
         setBalanceValue(newBalance);
         setBalance(newBalance);
     }
