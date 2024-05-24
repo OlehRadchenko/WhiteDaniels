@@ -3,8 +3,11 @@ import BalanceInfo from './BalanceInfo';
 import MessageInfo from './MessageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
+import { useLocation } from 'react-router-dom';
 
-const Blackjack = ({imie, chatMessages, socket, users}) =>{
+const Blackjack = () =>{
+    const location = useLocation();
+    const { imie } = location.state;
     const Deal = {
         user: 'user',
         hidden: 'hidden',
@@ -359,12 +362,10 @@ const Blackjack = ({imie, chatMessages, socket, users}) =>{
             <div id="menu">
                 <h1 id="titleBlackJack">Postaw Swój Zakład</h1>
                 <div id = "losowania">
-                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance} imie={imie} socket={socket} userTurn={true}/>
-                    {console.log(users)}
+                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance} userTurn={true}/>
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
-                    {chatMessages.filter(msg => msg.type === "betPlaced").map(msg => <Hand title={msg.username+"'s Hand"} cards={playerCards} actualScore={playerScore}/>)}
-                    
-                    <MessageInfo message={message} messages={chatMessages} socket={socket} imie={imie}/>
+                    <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
+                    <MessageInfo message={message}/>
                 </div>
             </div>
         </div>

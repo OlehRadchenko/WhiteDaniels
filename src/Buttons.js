@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import './Buttons.css'; 
 import './TextStyles.css';
+import { io } from 'socket.io-client';
+import { useNavigate } from "react-router-dom";
 
 const Chips = styled(Button)(({ theme }) => ({
     width: '77px',
@@ -31,10 +33,13 @@ const UtilityButtons = styled(Button)(({ theme }) => ({
     minWidth: '0px',
 }));
 
-const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, imie, socket, userTurn}) => {
+const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, userTurn}) => {
+    const socket = io('http://localhost:5000');
+    const navigate = useNavigate();
+    
     const [betValue, setBetValue] = useState(0);
     const [balanceValue, setBalanceValue] = useState(balance);
-    
+
     const nominaly = [
         { wartosc: 5000, ilosc: 0, color: 'brown', image: require('./Chips/brown.png') },
         { wartosc: 2000, ilosc: 0, color: 'lightblue', image: require('./Chips/lightblue.png') },
@@ -59,14 +64,6 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
 
     const betPlaced = () => {
         betEvent(betValue);
-        const message = {
-            type: 'betPlaced',
-            value: betValue,
-            username: imie,
-            id: Date.now(),
-            time: new Date().toLocaleString()
-        }
-        socket.current.send(JSON.stringify(message));
     }
 
     const Reset = () => {
@@ -75,8 +72,9 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     }
 
     const Return = () => {
-        window.location.href = '/';
-    }    
+        //socket.emit('go_back');
+        navigate('/');
+    }
 
     const Loan = (value) => {
         let newBalance = balanceValue + betValue + value;
