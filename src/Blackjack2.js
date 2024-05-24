@@ -4,7 +4,7 @@ import MessageInfo from './MessageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
 
-const Blackjack = ({imie, chatMessages, socket}) =>{
+const Blackjack = ({imie, chatMessages, socket, users}) =>{
     const Deal = {
         user: 'user',
         hidden: 'hidden',
@@ -359,9 +359,11 @@ const Blackjack = ({imie, chatMessages, socket}) =>{
             <div id="menu">
                 <h1 id="titleBlackJack">Postaw Swój Zakład</h1>
                 <div id = "losowania">
-                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
+                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance} imie={imie} socket={socket} userTurn={true}/>
+                    {console.log(users)}
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
-                    <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
+                    {chatMessages.filter(msg => msg.type === "betPlaced").map(msg => <Hand title={msg.username+"'s Hand"} cards={playerCards} actualScore={playerScore}/>)}
+                    
                     <MessageInfo message={message} messages={chatMessages} socket={socket} imie={imie}/>
                 </div>
             </div>

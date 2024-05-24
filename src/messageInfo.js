@@ -7,9 +7,10 @@ const MessageInfo = ({message, messages, socket, imie}) => {
     const [messageValue, setMessageValue] = useState('');
 
     const sendMessage = (value, imie) => {
+        setMessageValue('');
         const message = {
             type: 'message',
-            imie: imie,
+            username: imie,
             id: Date.now(),
             time: new Date().toLocaleString(),
             message: value
@@ -20,9 +21,9 @@ const MessageInfo = ({message, messages, socket, imie}) => {
         <div className="messageInfo">
             <div><p>{message}</p></div>
             <div id="chat">
-                <h3>{messages.map((msg, index) => msg.type === 'connection' ? <p key={index}>[{msg.time}] {msg.imie} dołączył do stołu</p> : <p key={index}>[{msg.time}]{msg.imie} : {msg.message}</p>)}</h3>
+                <h3>{messages.map((msg, index) => msg.type === 'connection' ? <p key={index}>[{msg.time}] {msg.username} dołączył do stołu</p> : msg.type === 'betPlaced' ? <p key={index}>[{msg.time}] {msg.username} obstawił : {msg.value}$</p> : <p key={index}>[{msg.time}] {msg.username} : {msg.message}</p>)}</h3>
                 {console.log(messages)}
-                <Input placeholder="Wiadomość" onChange={(e) => setMessageValue(e.target.value)}/><Button variant="contained" color="success" onClick={() => sendMessage(messageValue, imie)}>Wyślij</Button>
+                <Input placeholder="Wiadomość" value={messageValue} onChange={(e) => setMessageValue(e.target.value)}/><Button variant="contained" color="success" onClick={() => sendMessage(messageValue, imie)}>Wyślij</Button>
             </div>
         </div>
     );
