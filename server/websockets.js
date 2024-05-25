@@ -14,7 +14,53 @@ const io = socketIO(server, {
 });
 
 const users = JSON.parse(fs.readFileSync('data.json', 'utf8'));
-const usersConnected = [];
+let usersConnected = [];
+let deck = [];
+let gameState = [];
+let dealer = [];
+let message = "";
+
+const Deal = {
+    user: 'user',
+    hidden: 'hidden',
+    dealer: 'dealer'
+};
+const Message = {
+    bet: 'Place a Bet!',
+    hitStand: 'Hit or Stand?',
+    win: 'YOU WIN!',
+    lose: 'YOU LOSE!',
+    tie: 'PUSH!',
+    blackjack: 'BLACKJACK!',
+    bust: 'BUSTED!',
+    surrender: 'SURRENDER!',
+    error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry'
+};
+const GameState = {
+    betTime : 'betTime',
+    userTurn: 'userTurn',
+    dealerTurn: 'dealerTurn',
+    start: 'start'
+};
+
+const schuffleDeck = (deck) =>{
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+}
+const generateDeck = () =>{
+    let deckOnTable = [];
+    let values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    let types = ["T", "P", "S", "K"];
+    for (let i = 0; i < types.length; i++) {
+        for (let j = 0; j < values.length; j++) {
+            deckOnTable.push(values[j] + "_" + types[i]);
+        }
+    }
+    schuffleDeck(deckOnTable);
+    deck.push(...deckOnTable);
+}
 
 const addUser = (email, password, imie, nazwisko, dataUro, kraj, miasto, adres, kod_pocztowy, waluta, nr_tel) => {
     users.push({email, password, imie, nazwisko, dataUro, kraj, miasto, adres, kod_pocztowy, waluta, nr_tel});
@@ -31,7 +77,7 @@ const saveData = (data) => {
 
 const addConnectedUser = (socket, user) => {
     socket.user = user;
-    usersConnected.push({user: user, socketId: socket.id});
+    usersConnected.push({user: user, socketId: socket.id, connected: true, balance: 10000, ready: false, betValue: 0});
 }
 
 io.on('connection', (socket) => {
@@ -41,7 +87,7 @@ io.on('connection', (socket) => {
     const user = users.find((user) => user.email === data.email_login && user.password === data.password);
     if (user) {
         addConnectedUser(socket, user);
-        socket.emit('login_success', {message: 'Logowanie powiodło się pomyślnie', password_error: false, login_error: false, username: user.imie, usersActive: usersConnected});
+        socket.emit('login_success', {message: 'Logowanie powiodło się pomyślnie', password_error: false, login_error: false, user: user, usersActive: usersConnected});
     } else if(users.find((user) => user.email === data.email_login)){
         socket.emit('login_error', {message: 'Nieprawidłowe hasło!', passwordError: true, loginError: false});
     } else {
@@ -54,27 +100,49 @@ io.on('connection', (socket) => {
         socket.emit('register_error', {message: 'Użytkownik już istnieje'});
     } else {
         addUser(data.email, data.password, data.imie, data.nazwisko, data.dataUro, data.kraj, data.miasto, data.adres, data.kod_pocztowy, data.waluta, data.nr_tel);
-        socket.emit('register_success', {message: 'Rejestracja powiodła się pomyślnie', username: data.imie});
+        socket.emit('register_success', {message: 'Rejestracja powiodła się pomyślnie', user: data});
     }
+  });
+
+  socket.on('newGame', () => {
+    gameState = GameState.betTime;
+    dealer.cards = [];
+    dealer.score = 0;
+    dealer.count = 0;
+    usersConnected.forEach((user) => {
+        //user.ready = false;
+        user.PlayerCards = [];
+        user.PlayerScore = 0;
+        user.PlayerCount = 0;
+    });
+    message = '';
+    deck = [];
+    generateDeck();
+    socket.emit('newGame_success', {server_message: 'Nowa gra została rozpoczeta', deck: deck, usersActive: usersConnected, gameState: gameState, message: message, dealer: dealer});
+  });
+
+  socket.on('betPlaced', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    let startGame = false;
+    usersConnected[index].balance -= data.betValue;
+    usersConnected[index].ready = true;
+    usersConnected[index].betValue = data.betValue;
+
+    if(usersConnected.filter((user) => user.ready === true).length === usersConnected.length){
+        gameState = GameState.start;
+        startGame = true;
+    }
+    socket.emit('betPlaced_success', {message: 'Stawka postawiona: ', user: usersConnected[index], usersActive: usersConnected, startGame: startGame});
   });
 
   socket.on('disconnect', () => {
     console.log('Połączenie websockets zostało rozlączone');
-    const index = usersConnected.findIndex((user) => user.user === socket.user);
+    const index = usersConnected.findIndex((user) => user.user === socket.user); //Tu socket.user jest undefined, ale jak zrobić F5 na kliencie to nagle zadziała
     if (index !== -1) {
         usersConnected.splice(index, 1);
     }
     console.log(usersConnected);
   });
-
-  /*socket.on('go_back', () => {
-    console.log('Powracam na start');
-    const index = usersConnected.findIndex((user) => user.user === socket.user);
-    if (index !== -1) {
-        usersConnected.splice(index, 1);
-    }
-    console.log(usersConnected);
-  });*/
 });
 
 // Uruchom serwer

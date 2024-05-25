@@ -33,10 +33,21 @@ const UtilityButtons = styled(Button)(({ theme }) => ({
     minWidth: '0px',
 }));
 
-const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, userTurn}) => {
+const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, userTurn, user}) => {
     const socket = io('http://localhost:5000');
     const navigate = useNavigate();
     
+    socket.on('betPlaced_success', (data) => {
+        if(data.startGame){
+            console.log("Gra rozpoczyna się");
+        }else{
+            console.log('Czekamy na wszystkich');
+            setTimeout(() => {
+                
+              }, 5000)
+        }
+    });
+
     const [betValue, setBetValue] = useState(0);
     const [balanceValue, setBalanceValue] = useState(balance);
 
@@ -64,6 +75,7 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
 
     const betPlaced = () => {
         betEvent(betValue);
+        socket.emit('betPlaced', {betValue: betValue, user: user});
     }
 
     const Reset = () => {
@@ -72,7 +84,7 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     }
 
     const Return = () => {
-        //socket.emit('go_back');
+        socket.disconnect();
         navigate('/');
     }
 

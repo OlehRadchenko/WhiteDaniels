@@ -4,10 +4,15 @@ import MessageInfo from './MessageInfo';
 import Hand from './Hand';
 import Buttons from './Buttons';
 import { useLocation } from 'react-router-dom';
+import { io } from 'socket.io-client';
 
 const Blackjack = () =>{
     const location = useLocation();
     const { imie } = location.state;
+    const { user } = location.state;
+
+    const socket = io('http://localhost:5000');
+
     const Deal = {
         user: 'user',
         hidden: 'hidden',
@@ -133,6 +138,10 @@ const Blackjack = () =>{
         // eslint-disable-next-line
     }, [gameState]);
 
+    socket.on('newGame_success', (data) => {
+        console.log('Nowa gra, z serwera: ', data);
+    });
+
     const newGame = () =>{
         setGameState(GameState.betTime);
         setDealerCards([]);
@@ -149,28 +158,12 @@ const Blackjack = () =>{
         setMessage('');
 
         setDeck([]);
-        generateDeck();
+        socket.emit("newGame");
+        //generateDeck();
         //setBalance(1000);
     }
 
-    const schuffleDeck = (deck) =>{
-        for (let i = deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [deck[i], deck[j]] = [deck[j], deck[i]];
-        }
-    }
-    const generateDeck = () =>{
-        let deckOnTable = [];
-        let values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-        let types = ["T", "P", "S", "K"];
-        for (let i = 0; i < types.length; i++) {
-            for (let j = 0; j < values.length; j++) {
-                deckOnTable.push(values[j] + "_" + types[i]);
-            }
-        }
-        schuffleDeck(deckOnTable);
-        setDeck([...deckOnTable]);
-    }
+    
 
     const generateCard = (deal) =>{
         if(deck.length === 0){
@@ -362,7 +355,7 @@ const Blackjack = () =>{
             <div id="menu">
                 <h1 id="titleBlackJack">Postaw Swój Zakład</h1>
                 <div id = "losowania">
-                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance} userTurn={true}/>
+                    <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance} userTurn={true} user={user}/>
                     <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
                     <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
                     <MessageInfo message={message}/>

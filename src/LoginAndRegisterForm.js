@@ -53,7 +53,7 @@ const LoginAndRegisterForm = () =>{
     socket.on('login_success', (data) => {
         console.log('Pomyślne logowanie:', data.message);
         console.log(data.usersActive);
-        setRedirect(<Navigate to='/blackjack' state={{ imie: data.username }}/>);
+        setRedirect(<Navigate to='/blackjack' state={{ imie: data.username, user: data.user }}/>);
     });
     socket.on('login_error', (data) => {
         console.log('Błąd podczas logowania:', data.message);
@@ -66,7 +66,7 @@ const LoginAndRegisterForm = () =>{
     });
     socket.on('register_success', (data) => {
         console.log('Rejestracja pomyślna:', data.message);
-        setRedirect(<Navigate to='/blackjack' state={{ imie: data.username }}/>);
+        setRedirect(<Navigate to='/blackjack' state={{ imie: data.username, user: data.user }}/>);
     });
     const changeMode = () =>{
         setMode(mode === 'Login' ? 'Register' : 'Login');
