@@ -138,8 +138,8 @@ const Blackjack = () =>{
         // eslint-disable-next-line
     }, [gameState]);
 
-    socket.on('newGame_success', (data) => {
-        console.log('Nowa gra, z serwera: ', data);
+    socket.on('playGame_success', (data) => {
+        console.log(data); 
     });
 
     const newGame = () =>{
@@ -166,26 +166,15 @@ const Blackjack = () =>{
     
 
     const generateCard = (deal) =>{
-        if(deck.length === 0){
-            setBalance(balance + bet);
-            setMessage(Message.error); //IDK CZEMU NIE DZIAŁA
-            buttonsState.doubleDisabled = true;
-            buttonsState.surrenderDisabled = true;
-            buttonsState.hitDisabled = true;
-            buttonsState.standDisabled = true;
-            buttonsState.newGameDisabled = false;
-            setButtonsState({...buttonsState});
+        /*const cardNumber = Math.floor(Math.random() * deck.length);
+        const card = deck[cardNumber];
+        deck.splice(cardNumber, 1);
+        setDeck([...deck]);
+        if(card.charAt(1) !== '_'){
+            giveCard(deal, card.charAt(0)+card.charAt(1), card.charAt(3));
         }else{
-            const cardNumber = Math.floor(Math.random() * deck.length);
-            const card = deck[cardNumber];
-            deck.splice(cardNumber, 1);
-            setDeck([...deck]);
-            if(card.charAt(1) !== '_'){
-                giveCard(deal, card.charAt(0)+card.charAt(1), card.charAt(3));
-            }else{
-                giveCard(deal, card.charAt(0), card.charAt(2));
-            }
-        }
+            giveCard(deal, card.charAt(0), card.charAt(2));
+        }*/
     }
     const giveCard = (deal, value, suit) =>{
         if(deal === Deal.user){

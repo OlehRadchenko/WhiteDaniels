@@ -37,19 +37,22 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     const socket = io('http://localhost:5000');
     const navigate = useNavigate();
     
-    socket.on('betPlaced_success', (data) => {
-        if(data.startGame){
-            console.log("Gra rozpoczyna się");
-        }else{
-            console.log('Czekamy na wszystkich');
-            setTimeout(() => {
-                
-              }, 5000)
-        }
+    socket.on('placeBet_success', (data) => {
+        setBetButtonState(true);
+        setBalance(data.user.balance);
+        console.log(data);
+    });
+    socket.on('loan_success', (data) => {
+        setLoanButtonState(true);
+        setBalance(data.user.balance);
+        setBalanceValue(data.user.balance);
+        console.log(data);
     });
 
     const [betValue, setBetValue] = useState(0);
     const [balanceValue, setBalanceValue] = useState(balance);
+    const [betButtonState, setBetButtonState] = useState(false);
+    const [loanButtonState, setLoanButtonState] = useState(false);
 
     const nominaly = [
         { wartosc: 5000, ilosc: 0, color: 'brown', image: require('./Chips/brown.png') },
@@ -74,8 +77,10 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     }, [gameState, balance]);
 
     const betPlaced = () => {
-        betEvent(betValue);
-        socket.emit('betPlaced', {betValue: betValue, user: user});
+        //betEvent(betValue);
+        if(betValue > 0 && betValue <= balance){
+            socket.emit('placeBet', {betValue: betValue, user: user});
+        }
     }
 
     const Reset = () => {
@@ -90,8 +95,7 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
 
     const Loan = (value) => {
         let newBalance = balanceValue + betValue + value;
-        setBalanceValue(newBalance);
-        setBalance(newBalance);
+        socket.emit('loan', {newBalance: newBalance, user: user});
     }
 
     const AddBet = (value) =>{
@@ -126,9 +130,9 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
                             <div className="bet-label">
                                 <p>{betValue} USD</p>
                             </div>
-                            <Button variant="contained" onClick={betPlaced} color="success">Bet</Button>
+                            <Button variant="contained" onClick={betPlaced} color="success" disabled={betButtonState}>Bet</Button>
                     </div>
-                    <Button variant="contained" onClick={() => Loan(1000)} color="warning">Loan</Button>
+                    <Button variant="contained" onClick={() => Loan(1000)} color="warning" disabled={loanButtonState}>Loan</Button>
                 </div>
             );
         } else {

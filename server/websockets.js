@@ -16,8 +16,12 @@ const io = socketIO(server, {
 const users = JSON.parse(fs.readFileSync('data.json', 'utf8'));
 let usersConnected = [];
 let deck = [];
-let gameState = [];
-let dealer = [];
+let gameState = '';
+let dealer = {
+    cards: [],
+    score: 0,
+    count: 0
+};
 let message = "";
 
 const Deal = {
@@ -77,34 +81,20 @@ const saveData = (data) => {
 
 const addConnectedUser = (socket, user) => {
     socket.user = user;
-    usersConnected.push({user: user, socketId: socket.id, connected: true, balance: 10000, ready: false, betValue: 0});
-}
+    usersConnected.push({
+        user: user,
+        socketId: socket.id,
+        connected: true,
+        balance: 10000,
+        ready: false,
+        betValue: 0,
+        PlayerCards: [],
+        PlayerScore: 0,
+        PlayerCount: 0
+    });
+};
 
-io.on('connection', (socket) => {
-  console.log('Nowe połączenie websockets');
-  socket.on('login', (data) => {
-    console.log('Nowe logowanie');
-    const user = users.find((user) => user.email === data.email_login && user.password === data.password);
-    if (user) {
-        addConnectedUser(socket, user);
-        socket.emit('login_success', {message: 'Logowanie powiodło się pomyślnie', password_error: false, login_error: false, user: user, usersActive: usersConnected});
-    } else if(users.find((user) => user.email === data.email_login)){
-        socket.emit('login_error', {message: 'Nieprawidłowe hasło!', passwordError: true, loginError: false});
-    } else {
-        socket.emit('login_error', {message: 'Nieprawidłowe dane!', passwordError: true, loginError: true});
-    }
-  });
-
-  socket.on('register', (data) => {
-    if (userExists(data.email)) {
-        socket.emit('register_error', {message: 'Użytkownik już istnieje'});
-    } else {
-        addUser(data.email, data.password, data.imie, data.nazwisko, data.dataUro, data.kraj, data.miasto, data.adres, data.kod_pocztowy, data.waluta, data.nr_tel);
-        socket.emit('register_success', {message: 'Rejestracja powiodła się pomyślnie', user: data});
-    }
-  });
-
-  socket.on('newGame', () => {
+const newGame = () => {
     gameState = GameState.betTime;
     dealer.cards = [];
     dealer.score = 0;
@@ -114,25 +104,137 @@ io.on('connection', (socket) => {
         user.PlayerCards = [];
         user.PlayerScore = 0;
         user.PlayerCount = 0;
+        user.betValue = 0;
     });
     message = '';
     deck = [];
     generateDeck();
-    socket.emit('newGame_success', {server_message: 'Nowa gra została rozpoczeta', deck: deck, usersActive: usersConnected, gameState: gameState, message: message, dealer: dealer});
+};
+
+const generateCard = (deal, user) =>{
+    const cardNumber = Math.floor(Math.random() * deck.length);
+    const card = deck[cardNumber];
+    deck.splice(cardNumber, 1);
+    if(card.charAt(1) !== '_'){
+        giveCard(deal, card.charAt(0)+card.charAt(1), card.charAt(3), user);
+    }else{
+        giveCard(deal, card.charAt(0), card.charAt(2), user);
+    }
+}
+
+const giveCard = (deal, value, suit, user) =>{
+    if(deal === Deal.user){
+        user.PlayerCards.push({ 'value': value, 'suit': suit, 'hidden': false });
+    }else if(deal === Deal.dealer){
+        dealer.cards.push({ 'value': value, 'suit': suit, 'hidden': false });
+    }else{
+        dealer.cards.push({ 'value': value, 'suit': suit, 'hidden': true });
+    }
+}
+
+io.on('connection', (socket) => {
+  console.log('Nowe połączenie websockets');
+  socket.on('login', (data) => {
+    console.log('Nowe logowanie');
+    const user = users.find((user) => user.email === data.email_login && user.password === data.password);
+    if (user) {
+        if(usersConnected.some((userConnect) => userConnect.user === user)){
+            socket.emit('login_error', {
+                message: 'Taki użykownik już jest zalogowany!',
+                passwordError: false,
+                loginError: false
+            });
+        }else if(usersConnected.length > 3){
+            socket.emit('login_success', {
+                message: 'Za dużo użytkowników, proszę spróbować później!',
+                password_error: false,
+                login_error: false,
+            });
+        }else{
+            addConnectedUser(socket, user);
+            socket.emit('login_success', {
+                message: 'Logowanie powiodło się pomyślnie',
+                password_error: false,
+                login_error: false,
+                user: user,
+                usersActive: usersConnected
+            });
+        }
+    } else if(users.find((user) => user.email === data.email_login)){
+        socket.emit('login_error', {
+            message: 'Nieprawidłowe hasło!',
+             passwordError: true,
+              loginError: false
+        });
+    } else {
+        socket.emit('login_error', {
+            message: 'Nieprawidłowe dane!', 
+            passwordError: true, 
+            loginError: true
+        });
+    }
   });
 
-  socket.on('betPlaced', (data) => {
+  socket.on('register', (data) => {
+    if (userExists(data.email)) {
+        socket.emit('register_error', {
+            message: 'Użytkownik już istnieje'
+        });
+    } else {
+        addUser(data.email, 'a', data.imie, data.nazwisko, data.dataUro, data.kraj, data.miasto, data.adres, data.kod_pocztowy, data.waluta, data.nr_tel);
+        socket.emit('register_success', {
+            message: 'Rejestracja powiodła się pomyślnie', 
+            user: data
+        });
+    }
+  });
+
+  socket.on('newGame', () => {
+    
+  });
+
+  socket.on('placeBet', (data) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
-    let startGame = false;
     usersConnected[index].balance -= data.betValue;
     usersConnected[index].ready = true;
-    usersConnected[index].betValue = data.betValue;
+    usersConnected[index].betValue += data.betValue;
+    
+    socket.emit('placeBet_success', {
+        message: 'Stawka postawiona, ale być może trzeba poczekać na wszystkich graczy: ', 
+        user: usersConnected[index], 
+        usersActive: usersConnected
+    });
 
     if(usersConnected.filter((user) => user.ready === true).length === usersConnected.length){
+        //ROZPOCZĘCIE GRY
+        newGame();
         gameState = GameState.start;
-        startGame = true;
+        usersConnected.forEach((user) => {
+            user.ready = false;
+            generateCard(Deal.user, user);
+            generateCard(Deal.user, user);
+        });
+        generateCard(Deal.dealer);
+        generateCard(Deal.hidden);
+        message = Message.hitStand;
+        io.emit('playGame_success', {
+            message: 'Gra rozpoczęta: ',
+            usersActive: usersConnected,
+            dealer: dealer,
+            gameState: gameState
+        });
     }
-    socket.emit('betPlaced_success', {message: 'Stawka postawiona: ', user: usersConnected[index], usersActive: usersConnected, startGame: startGame});
+  });
+
+  socket.on('loan', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    usersConnected[index].balance = data.newBalance;
+
+    socket.emit('loan_success', {
+        message: 'Kredyt wdzięty: ', 
+        user: usersConnected[index], 
+        usersActive: usersConnected
+    });
   });
 
   socket.on('disconnect', () => {
