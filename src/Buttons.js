@@ -51,6 +51,7 @@ const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleSt
 
     socket.on('restartGame_50_success', (data) => {
         setBetButtonState(false);
+        setLoanButtonState(false);
     });
 
     const [betValue, setBetValue] = useState(0);

@@ -207,7 +207,15 @@ const calculateWins = () => {
             user.message = Message.lose + ' Przegrałeś '+user.betValue+'$';
             user.betValue = 0;
         }else if(user.blackjack){
-            user.message = Message.blackjack + ' Wygrałeś '+user.betValue*2.5+'$';
+            if(user.PlayerScore > dealer.score || dealer.score > 21){
+                user.message = Message.blackjack + ' Wygrałeś '+user.betValue*2.5+'$';
+                user.balance += (user.betValue * 2.5);
+                user.betValue = 0;
+            }else{
+                user.message = Message.tie + ' A więc nic nie tracisz';
+                user.balance += user.betValue;
+                user.betValue = 0;
+            }
         }else{
             if(user.PlayerScore <= 21 && user.PlayerScore > dealer.score){
                 user.message = Message.win + ' Wygrywasz '+user.betValue*2+'$';
@@ -362,11 +370,9 @@ io.on('connection', (socket) => {
             user.PlayerScore = calculateScore(user.PlayerCards);
             if(user.PlayerScore === 21){
                 user.blackjack = true;
-                user.balance += (user.betValue * 2.5);
-                user.betValue = 0;
             }
             if(user.hisTurn){
-                buttonsForBlackjack(user, {hitDisabled: false, standDisabled: false, doubleDisabled: false, surrenderDisabled: false, newGameDisabled: true});
+                buttonsForBlackjack(user, {hitDisabled: false, standDisabled: false, doubleDisabled: user.balance >= user.betValue ? false : true, surrenderDisabled: false, newGameDisabled: true});
                 user.message = Message.hitStand;
             }else{
                 user.buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
@@ -445,7 +451,8 @@ io.on('connection', (socket) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
     usersConnected[index].balance -= usersConnected[index].betValue;
     usersConnected[index].betValue += usersConnected[index].betValue;
-    hit(index);
+    generateCard(Deal.user, usersConnected[index]);
+    usersConnected[index].PlayerScore = calculateScore(usersConnected[index].PlayerCards);
     nextPlayerTurn(index);
     io.emit('double_success', {
         message: usersConnected[index].user.imie + ' podwoił stawkę ;0',
@@ -456,39 +463,39 @@ io.on('connection', (socket) => {
   });
 
   socket.on('restartGame', (data) => {
-    console.log(data);
-    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
-    usersConnected[index].buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
-    usersConnected[index].finish = true;
-    usersConnected[index].message = Message.wait;
-    if(usersConnected.filter((user) => user.finish === true).length === usersConnected.length && usersConnected.length > 1){
+    if(usersConnected.length === 1){
         newGame();
-        io.emit('restartGame_success', {
-            message: 'RESTART!',
-            usersActive: usersConnected,
-            dealer: dealer,
-            gameState: gameState
-        })
-        //PRZEKAZANIE DANYCH DO GRACZY
-    }else if(usersConnected.length === 1){
-        newGame();
-        io.emit('restartGame_50_success', {
-            message: 'RESTART 50!',
-            usersActive: usersConnected,
-            dealer: dealer,
-            user: usersConnected[index],
-            gameState: gameState
-        })
+            io.emit('restartGame_50_success', {
+                message: 'RESTART 50!',
+                usersActive: usersConnected,
+                dealer: dealer,
+                user: usersConnected[0],
+                gameState: gameState
+            })
     }else{
-        io.emit('restartGame_50_success', {
-            message: 'RESTART VOTE!',
-            usersActive: usersConnected,
-            dealer: dealer,
-            user: usersConnected[index],
-            gameState: gameState
-        })
+        const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+        usersConnected[index].buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
+        usersConnected[index].finish = true;
+        usersConnected[index].message = Message.wait;
+        if(usersConnected.filter((user) => user.finish === true).length === usersConnected.length && usersConnected.length > 1){
+            newGame();
+            io.emit('restartGame_success', {
+                message: 'RESTART!',
+                usersActive: usersConnected,
+                dealer: dealer,
+                gameState: gameState
+            })
+            //PRZEKAZANIE DANYCH DO GRACZY
+        }else{
+            io.emit('restartGame_50_success', {
+                message: 'RESTART VOTE!',
+                usersActive: usersConnected,
+                dealer: dealer,
+                user: usersConnected[index],
+                gameState: gameState
+            })
+        }
     }
-    
   });
 
   socket.on('loan', (data) => {
