@@ -35,7 +35,7 @@ const Message = {
     lose: 'YOU LOSE!',
     tie: 'PUSH!',
     blackjack: 'BLACKJACK!',
-    bust: 'BUSTED!',
+    bust: 'BUST!',
     surrender: 'SURRENDER!',
     error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry',
     wait: 'Poczekaj na swoją kolej!'
@@ -339,7 +339,7 @@ io.on('connection', (socket) => {
             message: 'Użytkownik już istnieje'
         });
     } else {
-        addUser(data.email, 'a', data.imie, data.nazwisko, data.dataUro, data.kraj, data.miasto, data.adres, data.kod_pocztowy, data.waluta, data.nr_tel);
+        addUser(data.email, data.password, data.imie, data.nazwisko, data.dataUro, data.kraj, data.miasto, data.adres, data.kod_pocztowy, data.waluta, data.nr_tel);
         socket.emit('register_success', {
             message: 'Rejestracja powiodła się pomyślnie', 
             user: data

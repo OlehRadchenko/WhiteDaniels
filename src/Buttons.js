@@ -164,16 +164,19 @@ const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleSt
             );
         } else {
             return (
-                <div className="buttons-container">
-                    <Button variant="contained" onClick={hit} color="success" disabled={hitState || !userTurn}>Hit</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={stand} color="error" disabled={standState  || !userTurn}>Stand</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={double} color="success" disabled={doubleState  || !userTurn}>Double</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={surrender} color="error" disabled={surrenderState  || !userTurn}>Surrender</Button>
-                    <div className="gap"></div>
+                <div>
+                    <div className="buttons-container">
+                        <Button variant="contained" onClick={hit} color="success" disabled={hitState || !userTurn}>Hit</Button>
+                        <div className="gap"></div>
+                        <Button variant="contained" onClick={stand} color="error" disabled={standState  || !userTurn}>Stand</Button>
+                        <div className="gap"></div>
+                        <Button variant="contained" onClick={double} color="success" disabled={doubleState  || !userTurn}>Double</Button>
+                        <div className="gap"></div>
+                        <Button variant="contained" onClick={surrender} color="error" disabled={surrenderState  || !userTurn}>Give up</Button>
+                    </div>
+                    <div style={{display : 'flex', alignItems : 'center', justifyContent : 'center', paddingTop : '10px'}}>
                     <Button variant="contained" onClick={resetGame} color="warning" disabled={newGameState}>Reset Game</Button>
+                    </div>
                 </div>
             );
         }

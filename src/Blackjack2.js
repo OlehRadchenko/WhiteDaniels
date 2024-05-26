@@ -106,9 +106,24 @@ const Blackjack = () =>{
     
     return(
         <div id="Blackjack">
-            <BalanceInfo balance={balance} />
+            <div id="topContainer">
+            <img id="logoGame" src={require('./icons/logo.png')} alt='logo'/>
+                <BalanceInfo balance={balance} style="font-size: 50px"/>
+            </div>
             <div id="menu">
-                <div id = "losowania">
+                <div>
+                    <div style={{textAlign: 'center', fontSize: '21px'}}>
+                        BLACKJACK PAYS 3 TO 2. DEALER MUST STAND ON 17 AND DRAW TO 16
+                    </div>
+                    <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>                         
+                    <div style={{display : 'flex', flexDirection : 'row', alignContent: 'space-between', gap : '50px', justifyContent: 'center'}}>
+                    {activeUsers.map((activeUser) => {
+                        return (
+                            <Hand title={activeUser.user.imie+"'s Hand"} cards={activeUser.PlayerCards} actualScore={activeUser.PlayerScore} key={activeUser.socketId}/>  
+                        );
+                    })}
+                    </div>
+                    <div style={{display : 'flex', flexDirection : 'row', alignContent: 'space-between', gap : '50px', justifyContent: 'center'}}>
                     <Buttons 
                         balance={balance} 
                         setBalance={setBalance} 
@@ -119,19 +134,17 @@ const Blackjack = () =>{
                         surrenderState={buttonsState.surrenderDisabled} 
                         newGameState={buttonsState.newGameDisabled}
                         userTurn={userTurn}
-                        user={user}
-                    />
-                    <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
-                    {activeUsers.map((activeUser) => {
-                        return (
-                            <Hand title={activeUser.user.imie+"'s Hand"} cards={activeUser.PlayerCards} actualScore={activeUser.PlayerScore} key={activeUser.socketId}/>
-                        );
-                    })}
+                        user={user}/> 
                     
-                    <MessageInfo message={message}/>
+                    </div>
+                    <MessageInfo message={message} />
                 </div>
             </div>
         </div>
     )
-}
+}/*<div>
+                        <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
+                        <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
+                        
+                    </div>*/
 export default Blackjack;
