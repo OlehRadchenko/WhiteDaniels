@@ -10,9 +10,7 @@ import Switch from '@mui/material/Switch';
 
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-
-import { addUser, findUserByEmail } from './userUtils.js'; 
-
+import { io } from 'socket.io-client';
 
 const LoginAndRegisterForm = () =>{
     const [mode, setMode] = useState('Login');
@@ -50,6 +48,26 @@ const LoginAndRegisterForm = () =>{
         "Sudan", "Szwajcaria", "Szwecja", "Turcja", "Ukraina", "USA", "Wenezuela", "Walia",
         "Wielka Brytania", "Włochy"];
     let isValid = true;
+    const socket = io('http://localhost:5000');
+    
+    socket.on('login_success', (data) => {
+        console.log('Pomyślne logowanie:', data.message);
+        console.log(data.usersActive);
+        setRedirect(<Navigate to='/blackjack' state={{ user: data.user }}/>);
+    });
+    socket.on('login_error', (data) => {
+        console.log('Błąd podczas logowania:', data.message);
+        setEmailLoginError(data.loginError);
+        setPasswordError(data.passwordError);
+    });
+    socket.on('register_error', (data) => {
+        console.log('Błąd podczas rejestracji:', data.message);
+        setEmailError(true);
+    });
+    socket.on('register_success', (data) => {
+        console.log('Rejestracja pomyślna:', data.message);
+        setRedirect(<Navigate to='/blackjack' state={{ user: data.user }}/>);
+    });
     const changeMode = () =>{
         setMode(mode === 'Login' ? 'Register' : 'Login');
     }
@@ -63,18 +81,8 @@ const LoginAndRegisterForm = () =>{
     const LoginButton = async () => {
         try {
             if(email_login !== '' && password !== ''){
-            const user = await findUserByEmail(email_login);
-            if (user && user.password === password) {
-                console.log('Login: ' + email_login + ' \nPassword: ' + password);
-                setEmailLoginError(false);
-                setPasswordError(false);
-                console.log('Login: ' + email_login + ' \nPassword: ' + password); //Sprawdzenie czy w bazie danych istnieje taki login i zweryfikowanie poprawności hasła
-                console.log('redirect to /blackjack');
-                setRedirect(<Navigate to="/lobby" state={{ imie: user.imie }} />);
-            } else if (user && user.password !== password) {
-                setPasswordError(true);
-                setEmailLoginError(false);
-            }} else if (email_login === '' && password === ''){
+                socket.emit('login', { email_login, password });
+            } else if (email_login === '' && password === ''){
                 setEmailLoginError(true);
                 setPasswordError(true);
             } else if (email_login === ''){
@@ -133,10 +141,10 @@ const LoginAndRegisterForm = () =>{
         const m = today.getMonth() - birthDate.getMonth();
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
             age--;
-        if (age < 18) 
+        if (age < 18) {
             isValid = false;
-            otherValidate(dataUro, setDataUroError);
-        
+            setDataUroError(true);
+        }
     }
     const otherValidate = (value, funct) => {
         if (value === '') {
@@ -189,18 +197,7 @@ const LoginAndRegisterForm = () =>{
                 waluta,
                 nr_tel
             };
-            try {
-                const possibleUser = await findUserByEmail(email_login);
-                if (possibleUser) {
-                    setEmailLoginError(true);
-                    return;
-                }
-                await addUser(newUser);
-                console.log('User registered successfully:', newUser);
-            } catch (error) {
-                console.error('Error registering user:', error);
-            }
-            setRedirect(<Navigate to="/blackjack" />);
+            socket.emit('register', newUser);
         }
     }
 

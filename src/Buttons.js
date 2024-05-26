@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import './Buttons.css'; 
 import './TextStyles.css';
+import { io } from 'socket.io-client';
+import { useNavigate } from "react-router-dom";
 
 const Chips = styled(Button)(({ theme }) => ({
     width: '77px',
@@ -31,10 +33,32 @@ const UtilityButtons = styled(Button)(({ theme }) => ({
     minWidth: '0px',
 }));
 
-const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, imie, socket, userTurn}) => {
+const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleState, surrenderState, newGameState, userTurn, user}) => {
+    const socket = io('http://localhost:5000');
+    const navigate = useNavigate();
+    
+    socket.on('placeBet_success', (data) => {
+        setBetButtonState(true);
+        setBalance(data.user.balance);
+        console.log(data);
+    });
+    socket.on('loan_success', (data) => {
+        setLoanButtonState(true);
+        setBalance(data.user.balance);
+        setBalanceValue(data.user.balance);
+        console.log(data);
+    });
+
+    socket.on('restartGame_50_success', (data) => {
+        setBetButtonState(false);
+        setLoanButtonState(false);
+    });
+
     const [betValue, setBetValue] = useState(0);
     const [balanceValue, setBalanceValue] = useState(balance);
-    
+    const [betButtonState, setBetButtonState] = useState(false);
+    const [loanButtonState, setLoanButtonState] = useState(false);
+
     const nominaly = [
         { wartosc: 5000, ilosc: 0, color: 'brown', image: require('./Chips/brown.png') },
         { wartosc: 2000, ilosc: 0, color: 'lightblue', image: require('./Chips/lightblue.png') },
@@ -58,15 +82,10 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     }, [gameState, balance]);
 
     const betPlaced = () => {
-        betEvent(betValue);
-        const message = {
-            type: 'betPlaced',
-            value: betValue,
-            username: imie,
-            id: Date.now(),
-            time: new Date().toLocaleString()
+        //betEvent(betValue);
+        if(betValue > 0 && betValue <= balance){
+            socket.emit('placeBet', {betValue: betValue, user: user});
         }
-        socket.current.send(JSON.stringify(message));
     }
 
     const Reset = () => {
@@ -75,20 +94,42 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
     }
 
     const Return = () => {
-        window.location.href = '/';
-    }    
+        socket.disconnect();
+        navigate('/');
+    }
 
     const Loan = (value) => {
         let newBalance = balanceValue + betValue + value;
-        setBalanceValue(newBalance);
-        setBalance(newBalance);
+        socket.emit('loan', {newBalance: newBalance, user: user});
     }
 
     const AddBet = (value) =>{
         setBetValue(betValue + value);
         setBalanceValue(balanceValue - value);
     }
+
+    const hit = () => {
+        socket.emit('hit', {user: user});
+    }
+
+    const stand = () => {
+        socket.emit('stand', {user: user});
+    }
+
+    const double = () => {
+        socket.emit('double', {user: user});
+    }
+
+    const surrender = () => {
+        socket.emit('surrender', {user: user});
+    }
+
+    const resetGame = () => {
+        socket.emit('restartGame', {user: user});
+    }
     const getButtons = () => {
+        //console.log(hitState, standState, doubleState, surrenderState, newGameState);
+        console.log(gameState);
         if(gameState === 'betTime'){
             return (
                 <div>
@@ -116,23 +157,23 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
                             <div className="bet-label">
                                 <p>{betValue} USD</p>
                             </div>
-                            <Button variant="contained" onClick={betPlaced} color="success">Bet</Button>
+                            <Button variant="contained" onClick={betPlaced} color="success" disabled={betButtonState}>Bet</Button>
                     </div>
-                    <Button variant="contained" onClick={() => Loan(1000)} color="warning">Loan</Button>
+                    <Button variant="contained" onClick={() => Loan(1000)} color="warning" disabled={loanButtonState}>Loan</Button>
                 </div>
             );
         } else {
             return (
                 <div className="buttons-container">
-                    <Button variant="contained" onClick={hitEvent} color="success" disabled={hitState || !userTurn}>Hit</Button>
+                    <Button variant="contained" onClick={hit} color="success" disabled={hitState || !userTurn}>Hit</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={standEvent} color="error" disabled={standState  || !userTurn}>Stand</Button>
+                    <Button variant="contained" onClick={stand} color="error" disabled={standState  || !userTurn}>Stand</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={doubleEvent} color="success" disabled={doubleState  || !userTurn}>Double</Button>
+                    <Button variant="contained" onClick={double} color="success" disabled={doubleState  || !userTurn}>Double</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={surrenderEvent} color="error" disabled={surrenderState  || !userTurn}>Surrender</Button>
+                    <Button variant="contained" onClick={surrender} color="error" disabled={surrenderState  || !userTurn}>Surrender</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={newGameEvent} color="warning" disabled={newGameState  || !userTurn}>Reset Game</Button>
+                    <Button variant="contained" onClick={resetGame} color="warning" disabled={newGameState}>Reset Game</Button>
                 </div>
             );
         }
