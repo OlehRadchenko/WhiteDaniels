@@ -360,7 +360,6 @@ io.on('connection', (socket) => {
     });
 
     if(usersConnected.filter((user) => user.ready === true).length === usersConnected.length){
-        //ROZPOCZĘCIE GRY
         newGame();
         gameState = GameState.start;
         usersConnected.forEach((user) => {
@@ -485,7 +484,6 @@ io.on('connection', (socket) => {
                 dealer: dealer,
                 gameState: gameState
             })
-            //PRZEKAZANIE DANYCH DO GRACZY
         }else{
             io.emit('restartGame_50_success', {
                 message: 'RESTART VOTE!',
@@ -512,7 +510,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Połączenie websockets zostało rozlączone');
-    const index = usersConnected.findIndex((user) => user.user === socket.user); //Tu socket.user jest undefined, ale jak zrobić F5 na kliencie to nagle zadziała
+    const index = usersConnected.findIndex((user) => user.user === socket.user);
     if (index !== -1) {
         usersConnected.splice(index, 1);
     }
