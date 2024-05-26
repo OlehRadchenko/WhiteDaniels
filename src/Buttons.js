@@ -33,7 +33,7 @@ const UtilityButtons = styled(Button)(({ theme }) => ({
     minWidth: '0px',
 }));
 
-const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, standEvent, standState, doubleEvent, doubleState, surrenderEvent, surrenderState, newGameEvent, newGameState, userTurn, user}) => {
+const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleState, surrenderState, newGameState, userTurn, user}) => {
     const socket = io('http://localhost:5000');
     const navigate = useNavigate();
     
@@ -102,7 +102,29 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
         setBetValue(betValue + value);
         setBalanceValue(balanceValue - value);
     }
+
+    const hit = () => {
+        socket.emit('hit', {user: user});
+    }
+
+    const stand = () => {
+        socket.emit('stand', {user: user});
+    }
+
+    const double = () => {
+        socket.emit('double', {user: user});
+    }
+
+    const surrender = () => {
+        socket.emit('surrender', {user: user});
+    }
+
+    const resetGame = () => {
+        socket.emit('restartGame', {user: user});
+    }
     const getButtons = () => {
+        //console.log(hitState, standState, doubleState, surrenderState, newGameState);
+        console.log(gameState);
         if(gameState === 'betTime'){
             return (
                 <div>
@@ -138,15 +160,15 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
         } else {
             return (
                 <div className="buttons-container">
-                    <Button variant="contained" onClick={hitEvent} color="success" disabled={hitState || !userTurn}>Hit</Button>
+                    <Button variant="contained" onClick={hit} color="success" disabled={hitState || !userTurn}>Hit</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={standEvent} color="error" disabled={standState  || !userTurn}>Stand</Button>
+                    <Button variant="contained" onClick={stand} color="error" disabled={standState  || !userTurn}>Stand</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={doubleEvent} color="success" disabled={doubleState  || !userTurn}>Double</Button>
+                    <Button variant="contained" onClick={double} color="success" disabled={doubleState  || !userTurn}>Double</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={surrenderEvent} color="error" disabled={surrenderState  || !userTurn}>Surrender</Button>
+                    <Button variant="contained" onClick={surrender} color="error" disabled={surrenderState  || !userTurn}>Surrender</Button>
                     <div className="gap"></div>
-                    <Button variant="contained" onClick={newGameEvent} color="warning" disabled={newGameState  || !userTurn}>Reset Game</Button>
+                    <Button variant="contained" onClick={resetGame} color="warning" disabled={newGameState}>Reset Game</Button>
                 </div>
             );
         }

@@ -22,7 +22,6 @@ let dealer = {
     score: 0,
     count: 0
 };
-let message = "";
 
 const Deal = {
     user: 'user',
@@ -38,7 +37,8 @@ const Message = {
     blackjack: 'BLACKJACK!',
     bust: 'BUSTED!',
     surrender: 'SURRENDER!',
-    error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry'
+    error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry',
+    wait: 'Poczekaj na swoją kolej!'
 };
 const GameState = {
     betTime : 'betTime',
@@ -90,7 +90,19 @@ const addConnectedUser = (socket, user) => {
         betValue: 0,
         PlayerCards: [],
         PlayerScore: 0,
-        PlayerCount: 0
+        PlayerCount: 0,
+        buttonsState: {
+            hitDisabled: false,
+            standDisabled: false,
+            doubleDisabled: false,
+            surrenderDisabled: false,
+            newGameDisabled: true
+        },
+        finish: false,
+        hisTurn: false,
+        message: '',
+        surrender: false,
+        blackjack: false
     });
 };
 
@@ -104,9 +116,9 @@ const newGame = () => {
         user.PlayerCards = [];
         user.PlayerScore = 0;
         user.PlayerCount = 0;
-        user.betValue = 0;
+        user.message = '';
     });
-    message = '';
+    usersConnected[0].hisTurn = true;
     deck = [];
     generateDeck();
 };
@@ -129,6 +141,134 @@ const giveCard = (deal, value, suit, user) =>{
         dealer.cards.push({ 'value': value, 'suit': suit, 'hidden': false });
     }else{
         dealer.cards.push({ 'value': value, 'suit': suit, 'hidden': true });
+    }
+}
+
+const calculateScore = (cards) =>{
+    let score = 0;
+    cards.forEach(card => {
+        if(card.hidden === false && card.value !== 'A'){
+            switch(card.value){
+                case 'J':
+                    score += 10;
+                    break;
+                case 'Q':
+                    score += 10;
+                    break;
+                case 'K':
+                    score += 10;
+                    break;
+                default:
+                    score += parseInt(card.value);
+                    break;
+            }
+        }
+    });
+
+    const aces = cards.filter(card => card.value === 'A' && card.hidden === false);
+    score += aces.length*11;
+    while(score > 21 && aces.length > 0){
+        score -= 10;
+        aces.pop();
+    }
+    return score;
+}
+
+const busted = (user) => {
+    return user.PlayerScore > 21;
+};
+
+const nextPlayerTurn = (index) => {
+    usersConnected[index].buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
+    usersConnected[index].hisTurn = false;
+    if(index < 2 && index > -1 && usersConnected[index+1] !== undefined){
+        usersConnected[index+1].hisTurn = true;
+        buttonsForBlackjack(usersConnected[index+1], {hitDisabled: false, standDisabled: false, doubleDisabled: false, surrenderDisabled: false, newGameDisabled: true});
+    }else{
+        gameState = GameState.dealerTurn;
+        //CZĘŚĆ DEALERA
+        showDealersHand();
+        while(dealer.score < 17){
+            generateCard(Deal.dealer);
+            dealer.score = calculateScore(dealer.cards);
+        }
+        calculateWins();
+    }
+};
+
+const showDealersHand = () => {
+    dealer.cards.map(card => card.hidden === true ? card.hidden = false : null);
+    dealer.score = calculateScore(dealer.cards);
+}
+
+const calculateWins = () => {
+    usersConnected.forEach((user) => {
+        if(user.surrender){
+            user.message = Message.lose + ' Przegrałeś '+user.betValue+'$';
+            user.betValue = 0;
+        }else{
+            if(user.PlayerScore <= 21 && user.PlayerScore > dealer.score){
+                user.message = Message.win + ' Wygrywasz '+user.betValue*2+'$';
+                user.balance += user.betValue*2;
+                user.betValue = 0;
+            }else if(user.PlayerScore <= 21 && user.PlayerScore === dealer.score){
+                user.message = Message.tie + ' A więc nic nie tracisz';
+                user.balance += user.betValue;
+                user.betValue = 0;
+            }else if(user.PlayerScore <= 21 && user.PlayerScore < dealer.score && dealer.score <= 21){
+                user.message = Message.lose + ' Przegrałeś '+user.betValue+'$';
+                user.betValue = 0;
+            }else if(user.PlayerScore > 21){
+                user.message = Message.lose + ' Przegrałeś '+user.betValue+'$';
+                user.betValue = 0;
+            }
+        }
+        user.buttonsState = {
+            hitDisabled: true,
+            standDisabled: true,
+            doubleDisabled: true,
+            surrenderDisabled: true,
+            newGameDisabled: false
+        };
+    });
+}
+
+const hit = (index) => {
+    generateCard(Deal.user, usersConnected[index]);
+    usersConnected[index].PlayerScore = calculateScore(usersConnected[index].PlayerCards);
+    if(usersConnected[index].PlayerCount <= 3){
+        usersConnected[index].buttonsState = {
+            hitDisabled: false,
+            standDisabled: false,
+            doubleDisabled: true,
+            surrenderDisabled: false,
+            newGameDisabled: true
+        };
+    }
+    if(busted(usersConnected[index])){
+        usersConnected[index].buttonsState = {
+            hitDisabled: true,
+            standDisabled: true,
+            doubleDisabled: true,
+            surrenderDisabled: true,
+            newGameDisabled: false
+        }
+        usersConnected[index].message = Message.bust;
+        nextPlayerTurn(index);
+    }
+}
+
+const buttonsForBlackjack = (user, buttonsProp) => {
+    if(user.blackjack){
+        user.buttonsState = {
+            hitDisabled: true,
+            standDisabled: false,
+            doubleDisabled: true,
+            surrenderDisabled: true,
+            newGameDisabled: true
+        }
+    }else{
+        user.buttonsState = buttonsProp;
     }
 }
 
@@ -189,10 +329,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('newGame', () => {
-    
-  });
-
   socket.on('placeBet', (data) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
     usersConnected[index].balance -= data.betValue;
@@ -213,10 +349,24 @@ io.on('connection', (socket) => {
             user.ready = false;
             generateCard(Deal.user, user);
             generateCard(Deal.user, user);
+            user.PlayerScore = calculateScore(user.PlayerCards);
+            if(user.PlayerScore === 21){
+                user.message = Message.blackjack + ' Wygrałeś '+user.betValue*2.5+'$';
+                user.blackjack = true;
+                user.balance += (user.betValue * 2.5);
+                user.betValue = 0;
+            }
+            if(user.hisTurn){
+                buttonsForBlackjack(user, {hitDisabled: false, standDisabled: false, doubleDisabled: false, surrenderDisabled: false, newGameDisabled: true});
+                user.message = Message.hitStand;
+            }else{
+                user.buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
+                user.message = Message.wait;
+            }
         });
         generateCard(Deal.dealer);
         generateCard(Deal.hidden);
-        message = Message.hitStand;
+        dealer.score = calculateScore(dealer.cards);
         io.emit('playGame_success', {
             message: 'Gra rozpoczęta: ',
             usersActive: usersConnected,
@@ -226,14 +376,121 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('giveButtonState', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    socket.emit('giveButtonState_success', {
+        message: 'Pobrano stan przycisków: ',
+        buttons: usersConnected[index].buttonsState,
+        mess: usersConnected[index].message,
+        userTurn: usersConnected[index].hisTurn
+    })
+  });
+
+  socket.on('calculateScore', () => {
+    usersConnected.forEach((user) => {
+        user.PlayerScore = calculateScore(user.PlayerCards);
+    });
+    dealer.score = calculateScore(dealer.cards);
+    io.emit('calculateScore_success', {
+        usersActive: usersConnected,
+        dealer: dealer,
+        gameState: gameState
+    });
+  });
+
+  socket.on('hit', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    hit(index);
+    io.emit('hit_success', {
+        message: usersConnected[index].user.imie + ' dobrał 1 kartę',
+        usersActive: usersConnected,
+        dealer: dealer,
+        gameState: gameState
+    })
+  });
+
+  socket.on('stand', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    nextPlayerTurn(index);
+    io.emit('stand_success', {
+        message: usersConnected[index].user.imie + ' czeka',
+        usersActive: usersConnected,
+        dealer: dealer,
+        gameState: gameState
+    })
+  });
+
+  socket.on('surrender', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    usersConnected[index].surrender = true;
+    nextPlayerTurn(index);
+    io.emit('surrender_success', {
+        message: usersConnected[index].user.imie + ' poddał się ;c',
+        usersActive: usersConnected,
+        dealer: dealer,
+        gameState: gameState
+    })
+  });
+
+  socket.on('double', (data) => {
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    hit(index);
+    usersConnected[index].balance -= data.betValue;
+    usersConnected[index].betValue += data.betValue;
+    nextPlayerTurn(index);
+    io.emit('double_success', {
+        message: usersConnected[index].user.imie + ' podwoił stawkę ;0',
+        usersActive: usersConnected,
+        dealer: dealer,
+        gameState: gameState
+    })
+  });
+
+  socket.on('restartGame', (data) => {
+    console.log(data);
+    const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    usersConnected[index].buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
+    usersConnected[index].finish = true;
+    usersConnected[index].message = Message.wait;
+    if(usersConnected.filter((user) => user.finish === true).length === usersConnected.length && usersConnected.length > 1){
+        newGame();
+        io.emit('restartGame_success', {
+            message: 'RESTART!',
+            usersActive: usersConnected,
+            dealer: dealer,
+            gameState: gameState
+        })
+        //PRZEKAZANIE DANYCH DO GRACZY
+    }else if(usersConnected.length === 1){
+        newGame();
+        socket.emit('restartGame_50_success', {
+            message: 'RESTART!',
+            usersActive: usersConnected,
+            dealer: dealer,
+            user: usersConnected[index],
+            gameState: gameState
+        })
+    }else{
+        socket.emit('restartGame_50_success', {
+            message: 'RESTART VOTE!',
+            usersActive: usersConnected,
+            dealer: dealer,
+            user: usersConnected[index],
+            gameState: gameState
+        })
+    }
+    
+  });
+
   socket.on('loan', (data) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
     usersConnected[index].balance = data.newBalance;
 
     socket.emit('loan_success', {
-        message: 'Kredyt wdzięty: ', 
+        message: 'Kredyt wzięty: ', 
         user: usersConnected[index], 
-        usersActive: usersConnected
+        usersActive: usersConnected,
+        dealer: dealer
     });
   });
 
@@ -247,44 +504,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Uruchom serwer
 const port = 5000;
 server.listen(port, () => {
   console.log(`Serwer nasłuchuje na porcie ${port}`);
 });
-
-
-
-/*const ws = require('ws');
-
-const wss = new ws.Server({port: 5000}, () => {
-    console.log("server started on port 5000");
-});
-//ŻEBY DZIAŁAŁO TRZEBA W FOLDERZE server zrobić: npm init -y, po czym zainstalować: npm i ws nodemon express socket.io, i odpalić serwer za pomocą npm start
-wss.on('connection', function conection(ws) {
-    ws.on('message', function (message) {
-        message = JSON.parse(message);
-        switch (message.type) {
-            case "connection":
-                broadcastMessage(message);
-                break;
-            case "message":
-                broadcastMessage(message);
-                break;
-            case "closed":
-                broadcastMessage(message);
-                break;
-            case "betPlaced":
-                broadcastMessage(message);
-                break;
-            default:
-                break;
-        }
-    });
-})
-
-function broadcastMessage(message) {
-    wss.clients.forEach(client => {
-        client.send(JSON.stringify(message));
-    });
-}*/
