@@ -18,6 +18,7 @@ const LoginAndRegisterForm = () =>{
     const [mode, setMode] = useState('Login');
     const [email_login, setLogin] = useState('');
     const [password, setPassword] = useState('');
+    const [repeat_password, setRepeatPassword] = useState('');
     const [imie, setImie] = useState('');
     const [nazwisko, setNazwisko] = useState('');
     const [dataUro, setDataUro] = useState('');
@@ -30,6 +31,7 @@ const LoginAndRegisterForm = () =>{
     const [nr_tel, setNrTel] = useState('');
     const [email_login_error, setEmailLoginError] = useState(false);
     const [password_error, setPasswordError] = useState(false);
+    const [repeat_password_error, setRepeatPasswordError] = useState(false);
     const [imie_error, setImieError] = useState(false);
     const [nazwisko_error, setNazwiskoError] = useState(false);
     const [dataUro_error, setDataUroError] = useState(false);
@@ -59,6 +61,9 @@ const LoginAndRegisterForm = () =>{
     }
     const PasswordInput = (event) =>{
         setPassword(event.target.value);
+    }
+    const RepeatPasswordInput = (event) =>{
+        setRepeatPassword(event.target.value);
     }
     const LoginButton = async () => {
         try {
@@ -120,6 +125,9 @@ const LoginAndRegisterForm = () =>{
     const NrTelInput = (event) =>{
         setNrTel(event.target.value);
     }
+    const validatePassword = (password) => {
+        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+    }
     const validateEmail = (email) => {
         return /\S+@\S+\.\S+/.test(email);
     }
@@ -133,10 +141,12 @@ const LoginAndRegisterForm = () =>{
         const m = today.getMonth() - birthDate.getMonth();
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
             age--;
-        if (age < 18) 
-            isValid = false;
-            otherValidate(dataUro, setDataUroError);
-        
+        if (age < 18) {
+            return false;
+        }
+        else
+            return true;
+           
     }
     const otherValidate = (value, funct) => {
         if (value === '') {
@@ -158,6 +168,28 @@ const LoginAndRegisterForm = () =>{
         } else {
             setEmailError(false);
         }
+
+        if (password === '' || !validatePassword(password)) {
+            isValid = false;
+            setPasswordError(true);
+        } else {
+            setPasswordError(false);
+        }
+
+        if( repeat_password === '' || repeat_password !== password) {
+            isValid = false;
+            setRepeatPasswordError(true);
+        } else {
+            setRepeatPasswordError(false);
+        }
+        
+        if (dataUro === '' || !validateAge(dataUro)) {
+            isValid = false;
+            setDataUroError(true);
+        } else {
+            setDataUroError(false);
+        }
+
         otherValidate(kraj, setKrajError);
         otherValidate(miasto, setMiastoError);
         otherValidate(adres, setAdresError);
@@ -169,8 +201,6 @@ const LoginAndRegisterForm = () =>{
         }
         otherValidate(waluta, setWalutaError);
         otherValidate(nr_tel, setNrTelError);
-
-        validateAge(dataUro);
 
         console.log(isValid)
 
@@ -204,60 +234,75 @@ const LoginAndRegisterForm = () =>{
         }
     }
 
-    return(
-        <div id={mode === 'Login' ? 'Login' : 'Register'}>
-            {redirect}
-            <div id="titleDiv">
-                <p id="title">WHITEDANIELS BLACKJACK</p>
+    return (
+        <div id="topContainer">
+            <div class="reklama">
+                {/* <img src={require('./icons/pozyczka.png')} alt='logo'/> */}
             </div>
-            <div id="Blackjack">
-            <div id="menu">
-            <form>
-                {mode === 'Login' ? (
-                    <>
-                        <Input placeholder="Email" onChange={EmailLoginInput} error={email_login_error}/>
-                        <Input placeholder="Hasło" type="password" onChange={PasswordInput} error={password_error}/>
-                    </>
-                ) : (
-                    <>
-                        <div id="forms">
-                            <div id="form1">
-                                <Input placeholder="Imie" onChange={ImieInput} error={imie_error}/>
-                                <Input placeholder="Nazwisko" onChange={NazwiskoInput} error={nazwisko_error}/>
-                                <FormControl fullWidth>
-                                    <Input type="date" placeholder="Data urodzenia" onChange={DataUroInput} error={dataUro_error}/>
-                                </FormControl>
-                                <Input placeholder="Email" onChange={EmailInput} error={email_error}/>
-                                <FormControl fullWidth>
-                                    <InputLabel id="demo-simple-select-label">Kraj</InputLabel>
-                                    <Select value={kraj} label="Kraj" labelId="demo-simple-select-label" id="demo-simple-select" onChange={KrajInput} error={kraj_error}>
-                                        {kraje.map((kraj, index) => <MenuItem key={index} value={kraj}>{kraj}</MenuItem>)}
-                                    </Select>
-                                </FormControl>
-                            </div>
-                            <div id="form2">
-                                <Input placeholder="Miasto" onChange={MiastoInput} error={miasto_error}/>
-                                <Input placeholder="Adres" onChange={AdresInput} error={adres_error}/>
-                                <Input placeholder="Kod pocztowy" onChange={KodPocztowyInput} error={kod_pocztowy_error}/>
-                                <FormControl fullWidth>
-                                    <InputLabel id="demo-simple-select-label">Waluta</InputLabel>
-                                    <Select value={waluta} label="Waluta" labelId="demo-simple-select-label" id="demo-simple-select" onChange={WalutaInput} error={waluta_error}>
-                                        {waluty.map((waluta, index) => <MenuItem key={index} value={waluta}>{waluta}</MenuItem>)}
-                                    </Select>
-                                </FormControl>
-                                <Input placeholder="Numer telefonu" onChange={NrTelInput} error={nr_tel_error}/>
-                            </div>
+
+            <div id={mode === 'Login' ? 'Login' : 'Register'} class="mainContainer">
+                {redirect}
+                <div id="titleDiv">
+                    <img id="logo" src={require('./icons/logo.png')} alt='logo' />
+                    <p id="title" style={{ fontFamily: "Cinzel" }}>WHITE DANIELS</p>
+                </div>
+                <div id="Blackjack">
+                    <div id="menu">
+                        <form>
+                            {mode === 'Login' ? (
+                                <>
+                                    <Input placeholder="Email" onChange={EmailLoginInput} error={email_login_error} />
+                                    <Input placeholder="Hasło" type="password" onChange={PasswordInput} error={password_error} />
+                                </>
+                            ) : (
+                                <>
+                                    <div id="forms">
+                                        <div id="form1">
+                                            <Input placeholder="Imie" onChange={ImieInput} error={imie_error} />
+                                            <Input placeholder="Nazwisko" onChange={NazwiskoInput} error={nazwisko_error} />
+                                            <Input placeholder="Email" onChange={EmailInput} error={email_error} />
+                                            <Input placeholder="Hasło" type="password" onChange={PasswordInput} error={password_error} />
+                                            <Input placeholder="Powtórz Hasło" type="password" onChange={RepeatPasswordInput} error={repeat_password_error} />
+                                            <FormControl fullWidth>
+                                                <InputLabel id="demo-simple-select-label">Kraj</InputLabel>
+                                                <Select style={{ color: 'white' }} value={kraj} label="Kraj" labelId="demo-simple-select-label" id="demo-simple-select" onChange={KrajInput} error={kraj_error}>
+                                                    {kraje.map((kraj, index) => <MenuItem key={index} value={kraj}>{kraj}</MenuItem>)}
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div id="form2">
+                                            <FormControl fullWidth>
+                                                <Input type="date" placeholder="Data urodzenia" onChange={DataUroInput} error={dataUro_error} />
+                                            </FormControl>
+                                            <Input placeholder="Miasto" onChange={MiastoInput} error={miasto_error} />
+                                            <Input placeholder="Adres" onChange={AdresInput} error={adres_error} />
+                                            <Input placeholder="Kod pocztowy" onChange={KodPocztowyInput} error={kod_pocztowy_error} />
+                                            <Input placeholder="Numer telefonu" onChange={NrTelInput} error={nr_tel_error} />
+                                            <FormControl fullWidth>
+                                                <InputLabel id="demo-simple-select-label">Waluta</InputLabel>
+                                                <Select style={{ color: 'white' }} value={waluta} label="Waluta" labelId="demo-simple-select-label" id="demo-simple-select" onChange={WalutaInput} error={waluta_error}>
+                                                    {waluty.map((waluta, index) => <MenuItem key={index} value={waluta}>{waluta}</MenuItem>)}
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                            <br />
+                            <Button variant="contained" color="success" endIcon={mode === 'Login' ? <SendIcon /> : null} onClick={mode === 'Login' ? LoginButton : RegisterButton}>
+                                {mode === 'Login' ? 'Zaloguj' : 'Zarejestruj się'}
+                            </Button>
+                            <br />
+                        </form>
+                        <div id="mode_switch">
+                            Logowanie<Switch defaultChecked={mode === 'Login' ? false : true} onChange={changeMode} color="default" key={mode} />Rejestracja
                         </div>
-                    </>
-                )}
-                <Button variant="contained" color="success" endIcon={mode==='Login' ? <SendIcon /> : null} onClick={mode === 'Login' ? LoginButton : RegisterButton}>
-                    {mode === 'Login' ? 'Zaloguj' : 'Zarejestruj się'}
-                </Button>
-            </form>
-            <div id="mode_switch">
-                Logowanie<Switch defaultChecked={mode === 'Login' ? false : true} onChange={changeMode} color="default" key={mode}/>Rejestracja
+                    </div>
+                </div>
             </div>
-            </div>
+
+            <div class="reklama">
+                {/* <img src={require('./icons/pozyczka2.png')} alt='logo'/> */}
             </div>
         </div>
     );

@@ -37,5 +37,18 @@
     "kod_pocztowy": "83-000",
     "waluta": "USD",
     "nr_tel": "123456789"
+  },
+  {
+    "email": "s@g.c",
+    "password": "As12ffdfe!",
+    "imie": "f",
+    "nazwisko": "f",
+    "dataUro": "2000-05-15",
+    "kraj": "Irlandia",
+    "miasto": "f",
+    "adres": "f",
+    "kod_pocztowy": "11-111",
+    "waluta": "GBP",
+    "nr_tel": "1"
   }
 ]

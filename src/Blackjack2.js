@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from 'react-router-dom';
 import BalanceInfo from './BalanceInfo';
 import MessageInfo from './MessageInfo';
@@ -21,7 +21,7 @@ const Blackjack = () =>{
         lose: 'YOU LOSE!',
         tie: 'PUSH!',
         blackjack: 'BLACKJACK!',
-        bust: 'BUSTED!',
+        bust: 'BUST!',
         surrender: 'SURRENDER!',
         error: 'Przepraszamy, wystąpił problem, środki zostaną zwrócone na konto, prosimy o kliknięcie przycisku restartu gry'
     };
@@ -359,12 +359,16 @@ const Blackjack = () =>{
     
     return(
         <div id="Blackjack">
-            <BalanceInfo balance={balance} />
+            <div id="topContainer">
+            <img id="logoGame" src={require('./icons/logo.png')} alt='logo'/>
+                <BalanceInfo balance={balance} style="font-size: 50px"/>
+            </div>
             <div id="menu">
-                {/* <h1 id="titleBlackJack">Postaw Swój Zakład</h1> */}
-                <div id = "losowania">
-                    {/* <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/> */}
-                    <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>
+                <div>
+                    <div style={{textAlign: 'center', fontSize: '21px'}}>
+                        BLACKJACK PAYS 3 TO 2. DEALER MUST STAND ON 17 AND DRAW TO 16
+                    </div>
+                    <Hand title="Dealer's Hand" cards={dealerCards} actualScore={dealerScore}/>                         
                     <div style={{display : 'flex', flexDirection : 'row', alignContent: 'space-between', gap : '50px'}}>
                         <div>
                             <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>

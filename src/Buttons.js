@@ -114,16 +114,19 @@ const Buttons = ({balance, setBalance, gameState, betEvent, hitEvent, hitState, 
             );
         } else {
             return (
-                <div className="buttons-container">
-                    <Button variant="contained" onClick={hitEvent} color="success" disabled={hitState}>Hit</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={standEvent} color="error" disabled={standState}>Stand</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={doubleEvent} color="success" disabled={doubleState}>Double</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={surrenderEvent} color="error" disabled={surrenderState}>Surrender</Button>
-                    <div className="gap"></div>
-                    <Button variant="contained" onClick={newGameEvent} color="warning" disabled={newGameState}>Reset Game</Button>
+                <div>
+                    <div className="buttons-container">
+                        <Button variant="contained" onClick={hitEvent} color="success" disabled={hitState}>Hit</Button>
+                        <div className="gap"></div>
+                        <Button variant="contained" onClick={standEvent} color="error" disabled={standState}>Stand</Button>
+                        <div className="gap"></div>
+                        <Button variant="contained" onClick={doubleEvent} color="success" disabled={doubleState}>Double</Button>
+                        <div className="gap"></div>
+                        <Button variant="contained" onClick={surrenderEvent} color="error" disabled={surrenderState}>Give up</Button>
+                    </div>
+                    <div style={{display : 'flex', alignItems : 'center', justifyContent : 'center', paddingTop : '10px'}}>
+                        <Button variant="contained" onClick={newGameEvent} color="warning" disabled={newGameState}>Start over</Button>
+                    </div>
                 </div>
             );
         }
