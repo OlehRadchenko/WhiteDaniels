@@ -193,10 +193,6 @@ const Blackjack = () =>{
         socket.emit('giveButtonState', {user: user});
     });
     socket.on('restartGame_success', (data) => {
-        console.log(data);
-        if(data.user.user.email === user.email){
-            setBalance(data.user.balance);
-        }
         setDealerCards(data.dealer.cards);
         setDealerScore(data.dealer.score);
         setActiveUsers(data.usersActive);

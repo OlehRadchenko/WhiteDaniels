@@ -49,5 +49,44 @@
         "kod_pocztowy":"83-000",
         "waluta":"USD",
         "nr_tel":"123456789"
+    },
+    {
+        "email":"s",
+        "password":"s",
+        "imie":"Oles",
+        "nazwisko":"XD",
+        "dataUro":"2005-10-10",
+        "kraj":"Finlandia",
+        "miasto":"asd",
+        "adres":"asd",
+        "kod_pocztowy":"83-000",
+        "waluta":"USD",
+        "nr_tel":"123456789"
+    },
+    {
+        "email":"d",
+        "password":"d",
+        "imie":"Polski Gaugan",
+        "nazwisko":"XD",
+        "dataUro":"2005-10-10",
+        "kraj":"Finlandia",
+        "miasto":"asd",
+        "adres":"asd",
+        "kod_pocztowy":"83-000",
+        "waluta":"USD",
+        "nr_tel":"123456789"
+    },
+    {
+        "email":"q",
+        "password":"q",
+        "imie":"Olaf 2",
+        "nazwisko":"XD",
+        "dataUro":"2005-10-10",
+        "kraj":"Finlandia",
+        "miasto":"asd",
+        "adres":"asd",
+        "kod_pocztowy":"83-000",
+        "waluta":"USD",
+        "nr_tel":"123456789"
     }
 ]
