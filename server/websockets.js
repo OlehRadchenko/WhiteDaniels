@@ -181,7 +181,7 @@ const busted = (user) => {
 const nextPlayerTurn = (index) => {
     usersConnected[index].buttonsState = {hitDisabled: true, standDisabled: true, doubleDisabled: true, surrenderDisabled: true, newGameDisabled: true};
     usersConnected[index].hisTurn = false;
-    if(index < 2 && index > -1 && usersConnected[index+1] !== undefined){
+    if(index < 2 && index > -1 && usersConnected[index+1] !== undefined && usersConnected.length > 1){
         usersConnected[index+1].hisTurn = true;
         buttonsForBlackjack(usersConnected[index+1], {hitDisabled: false, standDisabled: false, doubleDisabled: false, surrenderDisabled: false, newGameDisabled: true});
     }else{
@@ -206,6 +206,8 @@ const calculateWins = () => {
         if(user.surrender){
             user.message = Message.lose + ' Przegrałeś '+user.betValue+'$';
             user.betValue = 0;
+        }else if(user.blackjack){
+            user.message = Message.blackjack + ' Wygrałeś '+user.betValue*2.5+'$';
         }else{
             if(user.PlayerScore <= 21 && user.PlayerScore > dealer.score){
                 user.message = Message.win + ' Wygrywasz '+user.betValue*2+'$';
@@ -220,6 +222,14 @@ const calculateWins = () => {
                 user.betValue = 0;
             }else if(user.PlayerScore > 21){
                 user.message = Message.lose + ' Przegrałeś '+user.betValue+'$';
+                user.betValue = 0;
+            }else if(dealer.score > 21 && user.PlayerScore <= 21){
+                user.message = Message.win + ' Wygrywasz '+user.betValue*2+'$';
+                user.balance += user.betValue*2;
+                user.betValue = 0;
+            }else{
+                user.message = 'COŚ POSZŁO NIE TAK! (ELSE)';
+                user.balance += user.betValue;
                 user.betValue = 0;
             }
         }
@@ -351,7 +361,6 @@ io.on('connection', (socket) => {
             generateCard(Deal.user, user);
             user.PlayerScore = calculateScore(user.PlayerCards);
             if(user.PlayerScore === 21){
-                user.message = Message.blackjack + ' Wygrałeś '+user.betValue*2.5+'$';
                 user.blackjack = true;
                 user.balance += (user.betValue * 2.5);
                 user.betValue = 0;
@@ -434,9 +443,9 @@ io.on('connection', (socket) => {
 
   socket.on('double', (data) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
+    usersConnected[index].balance -= usersConnected[index].betValue;
+    usersConnected[index].betValue += usersConnected[index].betValue;
     hit(index);
-    usersConnected[index].balance -= data.betValue;
-    usersConnected[index].betValue += data.betValue;
     nextPlayerTurn(index);
     io.emit('double_success', {
         message: usersConnected[index].user.imie + ' podwoił stawkę ;0',
@@ -463,15 +472,15 @@ io.on('connection', (socket) => {
         //PRZEKAZANIE DANYCH DO GRACZY
     }else if(usersConnected.length === 1){
         newGame();
-        socket.emit('restartGame_50_success', {
-            message: 'RESTART!',
+        io.emit('restartGame_50_success', {
+            message: 'RESTART 50!',
             usersActive: usersConnected,
             dealer: dealer,
             user: usersConnected[index],
             gameState: gameState
         })
     }else{
-        socket.emit('restartGame_50_success', {
+        io.emit('restartGame_50_success', {
             message: 'RESTART VOTE!',
             usersActive: usersConnected,
             dealer: dealer,

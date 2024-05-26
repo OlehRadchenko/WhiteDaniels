@@ -194,6 +194,9 @@ const Blackjack = () =>{
     });
     socket.on('restartGame_success', (data) => {
         console.log(data);
+        if(data.user.email === user.email){
+            setBalance(data.user.balance);
+        }
         setDealerCards(data.dealer.cards);
         setDealerScore(data.dealer.score);
         setActiveUsers(data.usersActive);
@@ -203,11 +206,13 @@ const Blackjack = () =>{
     });
     socket.on('restartGame_50_success', (data) => {
         console.log(data);
+        if(data.user.email === user.email){
+            setBalance(data.user.balance);
+        }
         setDealerCards(data.dealer.cards);
         setDealerScore(data.dealer.score);
         setActiveUsers(data.usersActive);
         setGameState(data.gameState);
-        setBalance(data.user.balance);
         socket.emit('giveButtonState', {user: user});
     });
     
