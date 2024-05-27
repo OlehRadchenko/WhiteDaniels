@@ -38,13 +38,17 @@ const Blackjack = () =>{
         newGameDisabled: true
     });
 
-    socket.on('playGame_success', (data) => {
-        console.log(data);
+    const setGameSettings = (data) => {
         setDealerCards(data.dealer.cards);
         setDealerScore(data.dealer.score);
         setActiveUsers(data.usersActive);
         setGameState(data.gameState);
         socket.emit('giveButtonState', {user: user});
+    };
+
+    socket.on('playGame_success', (data) =>  {
+        console.log(data); //
+        setGameSettings(data);
     });
 
     socket.on('giveButtonState_success', (data) => {
@@ -54,54 +58,29 @@ const Blackjack = () =>{
     });
 
     socket.on('hit_success', (data) => {
-        console.log(data);
-        setDealerCards(data.dealer.cards);
-        setDealerScore(data.dealer.score);
-        setActiveUsers(data.usersActive);
-        setGameState(data.gameState);
-        socket.emit('giveButtonState', {user: user});
+        console.log(data); //
+        setGameSettings(data);
     });
     socket.on('stand_success', (data) => {
-        console.log(data);
-        setDealerCards(data.dealer.cards);
-        setDealerScore(data.dealer.score);
-        setActiveUsers(data.usersActive);
-        setGameState(data.gameState);
-        socket.emit('giveButtonState', {user: user});
+        console.log(data); //
+        setGameSettings(data);
     });
     socket.on('double_success', (data) => {
         console.log(data);
-        setDealerCards(data.dealer.cards);
-        setDealerScore(data.dealer.score);
-        setActiveUsers(data.usersActive);
-        setGameState(data.gameState);
-        socket.emit('giveButtonState', {user: user});
+        setGameSettings(data);
     });
     socket.on('surrender_success', (data) => {
         console.log(data);
-        setDealerCards(data.dealer.cards);
-        setDealerScore(data.dealer.score);
-        setActiveUsers(data.usersActive);
-        setGameState(data.gameState);
-        socket.emit('giveButtonState', {user: user});
+        setGameSettings(data);
     });
     socket.on('restartGame_success', (data) => {
-        setDealerCards(data.dealer.cards);
-        setDealerScore(data.dealer.score);
-        setActiveUsers(data.usersActive);
-        setGameState(data.gameState);
-        console.log(gameState);
-        socket.emit('giveButtonState', {user: user});
+        setGameSettings(data);
     });
     socket.on('restartGame_50_success', (data) => {
         if(data.user.user.email === user.email){
             setBalance(data.user.balance);
         }
-        setDealerCards(data.dealer.cards);
-        setDealerScore(data.dealer.score);
-        setActiveUsers(data.usersActive);
-        setGameState(data.gameState);
-        socket.emit('giveButtonState', {user: user});
+        setGameSettings(data);
     });
     
     return(
@@ -142,9 +121,5 @@ const Blackjack = () =>{
             </div>
         </div>
     )
-}/*<div>
-                        <Hand title={imie+"'s Hand"} cards={playerCards} actualScore={playerScore}/>
-                        <Buttons balance={balance} setBalance={setBalance} gameState={gameState} betEvent={placeBet} hitEvent={hit} hitState={buttonsState.hitDisabled} standEvent={stand} standState={buttonsState.standDisabled} doubleEvent={double} doubleState={buttonsState.doubleDisabled} surrenderEvent={surrender} surrenderState={buttonsState.surrenderDisabled} newGameEvent={newGame} newGameState={buttonsState.newGameDisabled} startChipsRestoreEvent={startChipsRestore} getBalance={getBalance}/>
-                        
-                    </div>*/
+}
 export default Blackjack;

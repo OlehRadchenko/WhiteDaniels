@@ -84,7 +84,6 @@ const addConnectedUser = (socket, user) => {
     usersConnected.push({
         user: user,
         socketId: socket.id,
-        connected: true,
         balance: 10000,
         ready: false,
         betValue: 0,
@@ -116,6 +115,7 @@ const newGame = () => {
         user.PlayerCards = [];
         user.PlayerScore = 0;
         user.PlayerCount = 0;
+        user.finish = false;
         user.message = '';
     });
     usersConnected[0].hisTurn = true;
@@ -211,10 +211,12 @@ const calculateWins = () => {
                 user.message = Message.blackjack + ' Wygrałeś '+user.betValue*2.5+'$';
                 user.balance += (user.betValue * 2.5);
                 user.betValue = 0;
+                user.blackjack = false;
             }else{
                 user.message = Message.tie + ' A więc nic nie tracisz';
                 user.balance += user.betValue;
                 user.betValue = 0;
+                user.blackjack = false;
             }
         }else{
             if(user.PlayerScore <= 21 && user.PlayerScore > dealer.score){
@@ -291,9 +293,10 @@ const buttonsForBlackjack = (user, buttonsProp) => {
 }
 
 io.on('connection', (socket) => {
-  console.log('Nowe połączenie websockets');
+  //console.log('Nowe połączenie websockets');
+
   socket.on('login', (data) => {
-    console.log('Nowe logowanie');
+    //console.log('Nowe logowanie');
     const user = users.find((user) => user.email === data.email_login && user.password === data.password);
     if (user) {
         if(usersConnected.some((userConnect) => userConnect.user === user)){
@@ -302,8 +305,8 @@ io.on('connection', (socket) => {
                 passwordError: false,
                 loginError: false
             });
-        }else if(usersConnected.length > 3){
-            socket.emit('login_success', {
+        }else if(usersConnected.length >= 3){
+            socket.emit('login_error', {
                 message: 'Za dużo użytkowników, proszę spróbować później!',
                 password_error: false,
                 login_error: false,
@@ -321,8 +324,8 @@ io.on('connection', (socket) => {
     } else if(users.find((user) => user.email === data.email_login)){
         socket.emit('login_error', {
             message: 'Nieprawidłowe hasło!',
-             passwordError: true,
-              loginError: false
+            passwordError: true,
+            loginError: false
         });
     } else {
         socket.emit('login_error', {
@@ -353,10 +356,9 @@ io.on('connection', (socket) => {
     usersConnected[index].ready = true;
     usersConnected[index].betValue += data.betValue;
     
-    socket.emit('placeBet_success', {
+    io.emit('placeBet_success', {
         message: 'Stawka postawiona, ale być może trzeba poczekać na wszystkich graczy: ', 
-        user: usersConnected[index], 
-        usersActive: usersConnected
+        user: usersConnected[index]
     });
 
     if(usersConnected.filter((user) => user.ready === true).length === usersConnected.length){
@@ -393,30 +395,17 @@ io.on('connection', (socket) => {
   socket.on('giveButtonState', (data) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
     socket.emit('giveButtonState_success', {
-        message: 'Pobrano stan przycisków: ',
         buttons: usersConnected[index].buttonsState,
         mess: usersConnected[index].message,
         userTurn: usersConnected[index].hisTurn
     })
   });
 
-  socket.on('calculateScore', () => {
-    usersConnected.forEach((user) => {
-        user.PlayerScore = calculateScore(user.PlayerCards);
-    });
-    dealer.score = calculateScore(dealer.cards);
-    io.emit('calculateScore_success', {
-        usersActive: usersConnected,
-        dealer: dealer,
-        gameState: gameState
-    });
-  });
-
   socket.on('hit', (data) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
     hit(index);
     io.emit('hit_success', {
-        message: usersConnected[index].user.imie + ' dobrał 1 kartę',
+        //message: usersConnected[index].user.imie + ' dobrał 1 kartę',
         usersActive: usersConnected,
         dealer: dealer,
         gameState: gameState
@@ -427,7 +416,7 @@ io.on('connection', (socket) => {
     const index = usersConnected.findIndex((user) => user.user.email === data.user.email);
     nextPlayerTurn(index);
     io.emit('stand_success', {
-        message: usersConnected[index].user.imie + ' czeka',
+        //message: usersConnected[index].user.imie + ' czeka',
         usersActive: usersConnected,
         dealer: dealer,
         gameState: gameState
@@ -439,7 +428,7 @@ io.on('connection', (socket) => {
     usersConnected[index].surrender = true;
     nextPlayerTurn(index);
     io.emit('surrender_success', {
-        message: usersConnected[index].user.imie + ' poddał się ;c',
+        //message: usersConnected[index].user.imie + ' poddał się ;c',
         usersActive: usersConnected,
         dealer: dealer,
         gameState: gameState
@@ -454,7 +443,7 @@ io.on('connection', (socket) => {
     usersConnected[index].PlayerScore = calculateScore(usersConnected[index].PlayerCards);
     nextPlayerTurn(index);
     io.emit('double_success', {
-        message: usersConnected[index].user.imie + ' podwoił stawkę ;0',
+        //message: usersConnected[index].user.imie + ' podwoił stawkę ;0',
         usersActive: usersConnected,
         dealer: dealer,
         gameState: gameState
@@ -502,23 +491,21 @@ io.on('connection', (socket) => {
 
     socket.emit('loan_success', {
         message: 'Kredyt wzięty: ', 
-        user: usersConnected[index], 
-        usersActive: usersConnected,
-        dealer: dealer
+        user_balance: usersConnected[index].balance
     });
   });
 
   socket.on('disconnect', () => {
-    console.log('Połączenie websockets zostało rozlączone');
+    //console.log('Połączenie websockets zostało rozlączone');
     const index = usersConnected.findIndex((user) => user.user === socket.user);
     if (index !== -1) {
         usersConnected.splice(index, 1);
     }
-    console.log(usersConnected);
+    //console.log(usersConnected);
   });
 });
 
 const port = 5000;
 server.listen(port, () => {
-  console.log(`Serwer nasłuchuje na porcie ${port}`);
+    console.log(`Serwer nasłuchuje na porcie ${port}`);
 });

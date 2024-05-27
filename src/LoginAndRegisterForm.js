@@ -68,7 +68,7 @@ const LoginAndRegisterForm = () =>{
     });
     socket.on('register_success', (data) => {
         console.log('Rejestracja pomyślna:', data.message);
-        setRedirect(<Navigate to='/blackjack' state={{ user: data.user }}/>);
+        setRedirect(<Navigate to='/'/>);
     });
     const changeMode = () =>{
         setMode(mode === 'Login' ? 'Register' : 'Login');
@@ -83,7 +83,7 @@ const LoginAndRegisterForm = () =>{
     const RepeatPasswordInput = (event) =>{
         setRepeatPassword(event.target.value);
     }
-    const LoginButton = async () => {
+    const LoginButton = () => {
         try {
             if(email_login !== '' && password !== ''){
                 socket.emit('login', { email_login, password });
@@ -235,11 +235,11 @@ const LoginAndRegisterForm = () =>{
 
     return(
         <div id="topContainer">
-            <div class="reklama">
+            <div className="reklama">
                 {/* <img src={require('./icons/pozyczka.png')} alt='logo'/> */}
             </div>
 
-            <div id={mode === 'Login' ? 'Login' : 'Register'} class="mainContainer">
+            <div id={mode === 'Login' ? 'Login' : 'Register'} className="mainContainer">
                 {redirect}
                 <div id="titleDiv">
                     <img id="logo" src={require('./icons/logo.png')} alt='logo' />
@@ -300,7 +300,7 @@ const LoginAndRegisterForm = () =>{
                 </div>
             </div>
 
-            <div class="reklama">
+            <div className="reklama">
                 {/* <img src={require('./icons/pozyczka2.png')} alt='logo'/> */}
             </div>
         </div>

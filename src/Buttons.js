@@ -38,14 +38,15 @@ const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleSt
     const navigate = useNavigate();
     
     socket.on('placeBet_success', (data) => {
-        setBetButtonState(true);
-        setBalance(data.user.balance);
-        console.log(data);
+        if(data.user.user.email === user.email) {
+            setBetButtonState(true);
+            setBalance(data.user.balance);
+        }
     });
     socket.on('loan_success', (data) => {
         setLoanButtonState(true);
-        setBalance(data.user.balance);
-        setBalanceValue(data.user.balance);
+        setBalance(data.user_balance);
+        setBalanceValue(data.user_balance);
         console.log(data);
     });
 
@@ -133,10 +134,16 @@ const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleSt
         if(gameState === 'betTime'){
             return (
                 <div>
-                    <p>
-                        <UtilityButtons color="success" onClick={Return} className="icon-button" id="return-button">
-                            <img src={require('./icons/arrow.png')} alt="Return" className="icon-image" />
-                        </UtilityButtons>
+                    <div style={{textAlign: 'center'}}>
+                        <div>
+                            <UtilityButtons color="success" onClick={Return} className="icon-button" id="return-button">
+                                <img src={require('./icons/arrow.png')} alt="Return" className="icon-image" />
+                            </UtilityButtons>
+                            <UtilityButtons color="success" onClick={Reset} className="icon-button" id="reset-button">
+                                <img src={require('./icons/restart.png')} alt="Restart" className="icon-image" />
+                            </UtilityButtons>
+                        </div>
+                        
                         {nominaly.map((nominal, index) => (
                             <Chips
                                 key={index}
@@ -149,10 +156,7 @@ const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleSt
                                 <span className="chip-value">{nominal.wartosc}$</span>
                             </Chips>
                         ))}
-                        <UtilityButtons color="success" onClick={Reset} className="icon-button" id="reset-button">
-                            <img src={require('./icons/restart.png')} alt="Restart" className="icon-image" />
-                        </UtilityButtons>
-                    </p>
+                    </div>
                     <div className="bet-container">
                             <div className="bet-label">
                                 <p>{betValue} USD</p>
@@ -166,16 +170,16 @@ const Buttons = ({balance, setBalance, gameState, hitState, standState, doubleSt
             return (
                 <div>
                     <div className="buttons-container">
-                        <Button variant="contained" onClick={hit} color="success" disabled={hitState || !userTurn}>Hit</Button>
+                        <Button variant="contained" onClick={() => hit()} color="success" disabled={hitState || !userTurn}>Hit</Button>
                         <div className="gap"></div>
-                        <Button variant="contained" onClick={stand} color="error" disabled={standState  || !userTurn}>Stand</Button>
+                        <Button variant="contained" onClick={() => stand()} color="error" disabled={standState  || !userTurn}>Stand</Button>
                         <div className="gap"></div>
-                        <Button variant="contained" onClick={double} color="success" disabled={doubleState  || !userTurn}>Double</Button>
+                        <Button variant="contained" onClick={() => double()} color="success" disabled={doubleState  || !userTurn}>Double</Button>
                         <div className="gap"></div>
-                        <Button variant="contained" onClick={surrender} color="error" disabled={surrenderState  || !userTurn}>Give up</Button>
+                        <Button variant="contained" onClick={() => surrender()} color="error" disabled={surrenderState  || !userTurn}>Give up</Button>
                     </div>
                     <div style={{display : 'flex', alignItems : 'center', justifyContent : 'center', paddingTop : '10px'}}>
-                    <Button variant="contained" onClick={resetGame} color="warning" disabled={newGameState}>Reset Game</Button>
+                    <Button variant="contained" onClick={() => resetGame()} color="warning" disabled={newGameState}>Reset Game</Button>
                     </div>
                 </div>
             );
